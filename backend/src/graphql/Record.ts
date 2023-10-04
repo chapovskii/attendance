@@ -42,12 +42,15 @@ export const RecordQuery = extendType({
     t.list.field("dailyRecords", {
       type: "Record",
       async resolve() {
-        const startOfSelectedDay = new Date().setHours(0, 0, 0);
+        const startOfSelectedDay = new Date().setHours(0, 0, 0, 0);
+        const startOfSelectedDayISO = new Date(
+          startOfSelectedDay
+        ).toISOString();
 
         const projection = { _id: 0 };
         const RecsFetched = await records
           .find({
-            date: { $gte: startOfSelectedDay },
+            date: { $gte: startOfSelectedDayISO },
           })
           .project(projection)
           .toArray();
@@ -75,17 +78,18 @@ export const RecordQuery = extendType({
         );
         const monthEnding = new Date(
           correctTS.getFullYear(),
-          correctTS.getMonth() + 1,
-          1
+          correctTS.getMonth() + 1
         );
 
+        console.log(monthBeggining.toISOString());
+        console.log(monthEnding.toISOString());
         const RecsFetched = await records
           .aggregate([
             {
               $match: {
                 $and: [
-                  { date: { $gte: monthBeggining } },
-                  { date: { $lt: monthEnding } },
+                  { date: { $gte: monthBeggining.toISOString() } },
+                  { date: { $lt: monthEnding.toISOString() } },
                 ],
               },
             },
@@ -97,29 +101,11 @@ export const RecordQuery = extendType({
               },
             },
             { $sort: { _id: 1 } },
+            { $project: { login: "$_id", wrk_hrs: 1, brk_hrs: 1 } },
           ])
           .toArray();
 
-        console.log(
-          [
-            {
-              $match: {
-                $and: [
-                  { date: { $gte: monthBeggining } },
-                  { date: { $lt: monthEnding } },
-                ],
-              },
-            },
-            {
-              $group: {
-                _id: "$login",
-                brk_hrs: { $sum: "$brk_hrs" },
-                wrk_hrs: { $sum: "$wrk_hrs" },
-              },
-            },
-            { $sort: { _id: 1 } },
-          ][0].$match?.$and
-        );
+        console.log(RecsFetched);
 
         const returningResp: NexusGenObjects["Record"][] =
           DocsWOID(RecsFetched);

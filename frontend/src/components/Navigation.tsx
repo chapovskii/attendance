@@ -30,6 +30,11 @@ function Navigation() {
           </li>
         </ul>
         <hr className="navigation-divider" />
+        <li className="navigation-item">
+          <Link to="/monthly-records" className="navigation-link">
+            Log in
+          </Link>
+        </li>
         <div className="github-link">
           <a
             href="https://github.com/your-github-repo-link"

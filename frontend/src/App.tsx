@@ -15,6 +15,7 @@ function App() {
           <Route path="/daily-records" element={<DailyRecords />} />
         </Routes>
       </Router>
+      <div>hhhhhhhh</div>
     </div>
   );
 }

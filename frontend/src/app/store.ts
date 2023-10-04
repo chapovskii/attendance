@@ -1,9 +1,17 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import profileCreateReducer from "../features/profile/create";
+import profileAuthReducer from "../features/profile/login";
+import recordDailyReducer from "../features/record/daily";
+import recordMonthlyReducer from "../features/record/monthly";
+import recordSetReducer from "../features/record/set";
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    createProfile: profileCreateReducer,
+    authProfile: profileAuthReducer,
+    dailyRecords: recordDailyReducer,
+    monthlyRecords: recordMonthlyReducer,
+    setRecord: recordSetReducer,
   },
 });
 
