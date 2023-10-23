@@ -15,7 +15,7 @@ const initialState: InitialState = {
 
 // Generates pending, fulfilled and rejected action types
 export const fetchRecordsMonthly = createAsyncThunk(
-  "record/daily",
+  "record/load",
   async (arg: { login: string; process: string }) => {
     const response = await axios.post(
       `http://localhost:8000/graphql`,
@@ -33,7 +33,6 @@ export const fetchRecordsMonthly = createAsyncThunk(
         },
       }
     );
-    console.log(process.env.API);
     return response.data.data.monthlyRecords;
   }
 );

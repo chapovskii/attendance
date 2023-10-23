@@ -1,6 +1,7 @@
 import { extendType, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 import { profiles } from "../database";
+import profilesAggregations from "./aggregations/profilesAggregationSteps";
 
 export const Profile = objectType({
   name: "Profile",
@@ -22,8 +23,9 @@ export const ProfileQuery = extendType({
         login: nonNull(stringArg()),
       },
       async resolve(parent, args, context, info) {
-        const accountFound = await profiles.findOne({ login: args.login });
-
+        const accountFound = await profilesAggregations.authentification(
+          args.login
+        );
         const response = accountFound ? true : false;
         return response;
       },
@@ -35,7 +37,7 @@ export const ProfileMutation = extendType({
   type: "Mutation",
   definition(t) {
     t.nonNull.field("createProfile", {
-      type: "Profile",
+      type: "Boolean",
       args: {
         login: nonNull(stringArg()),
         name: nonNull(stringArg()),
@@ -44,18 +46,8 @@ export const ProfileMutation = extendType({
         phone: nonNull(stringArg()),
       },
 
-      async resolve(parent, args, context, info) {
-        const { login, name, position, email, phone } = args;
-        const newProfile: NexusGenObjects["Profile"] = {
-          login,
-          name,
-          position,
-          email,
-          phone,
-        };
-
-        await profiles.insertOne(newProfile);
-
+      async resolve(parent, args) {
+        const newProfile = await profilesAggregations.refistration(args);
         return newProfile;
       },
     });

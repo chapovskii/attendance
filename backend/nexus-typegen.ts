@@ -47,6 +47,10 @@ export interface NexusGenObjects {
     status: boolean; // Boolean!
     wrk_hrs?: number | null; // Int
   }
+  RecordWOpt: { // root type
+    options: string; // String!
+    recordData: NexusGenRootTypes['Record']; // Record!
+  }
 }
 
 export interface NexusGenInterfaces {
@@ -61,7 +65,7 @@ export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
   Mutation: { // field return type
-    createProfile: NexusGenRootTypes['Profile']; // Profile!
+    createProfile: boolean; // Boolean!
     setRecord: boolean; // Boolean!
   }
   Profile: { // field return type
@@ -73,6 +77,7 @@ export interface NexusGenFieldTypes {
   }
   Query: { // field return type
     dailyRecords: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
+    loadRecordForSet: NexusGenRootTypes['RecordWOpt'] | null; // RecordWOpt
     login: boolean; // Boolean!
     monthlyRecords: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
   }
@@ -86,11 +91,15 @@ export interface NexusGenFieldTypes {
     status: boolean; // Boolean!
     wrk_hrs: number | null; // Int
   }
+  RecordWOpt: { // field return type
+    options: string; // String!
+    recordData: NexusGenRootTypes['Record']; // Record!
+  }
 }
 
 export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
-    createProfile: 'Profile'
+    createProfile: 'Boolean'
     setRecord: 'Boolean'
   }
   Profile: { // field return type name
@@ -102,6 +111,7 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     dailyRecords: 'Record'
+    loadRecordForSet: 'RecordWOpt'
     login: 'Boolean'
     monthlyRecords: 'Record'
   }
@@ -114,6 +124,10 @@ export interface NexusGenFieldTypeNames {
     start: 'String'
     status: 'Boolean'
     wrk_hrs: 'Int'
+  }
+  RecordWOpt: { // field return type name
+    options: 'String'
+    recordData: 'Record'
   }
 }
 
@@ -132,6 +146,9 @@ export interface NexusGenArgTypes {
     }
   }
   Query: {
+    loadRecordForSet: { // args
+      login: string; // String!
+    }
     login: { // args
       login: string; // String!
     }

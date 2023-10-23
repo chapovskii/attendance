@@ -3,7 +3,7 @@
 
 
 type Mutation {
-  createProfile(email: String!, login: String!, name: String!, phone: String!, position: String!): Profile!
+  createProfile(email: String!, login: String!, name: String!, phone: String!, position: String!): Boolean!
   setRecord(login: String!, process: String!): Boolean!
 }
 
@@ -17,6 +17,7 @@ type Profile {
 
 type Query {
   dailyRecords: [Record]
+  loadRecordForSet(login: String!): RecordWOpt
   login(login: String!): Boolean!
   monthlyRecords(date: String!): [Record]
 }
@@ -30,4 +31,9 @@ type Record {
   start: String
   status: Boolean!
   wrk_hrs: Int
+}
+
+type RecordWOpt {
+  options: String!
+  recordData: Record!
 }

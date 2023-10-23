@@ -1,10 +1,12 @@
 import { extendType, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
-import { records } from "../database";
+import { profiles, records } from "../database";
 import { WithId } from "mongodb";
+import recordsAggregations from "./aggregations/recordsAggregationSteps";
+import profilesAggregations from "./aggregations/profilesAggregationSteps";
 
 export const Record = objectType({
-  name: "Record", // <- Name of your type
+  name: "Record",
   definition(t) {
     t.nonNull.string("login");
     t.nonNull.string("date");
@@ -14,6 +16,15 @@ export const Record = objectType({
     t.int("brk_hrs");
     t.int("wrk_hrs");
     t.int("cfbreak");
+  },
+});
+export const RecordWOpt = objectType({
+  name: "RecordWOpt",
+  definition(t) {
+    t.nonNull.field("recordData", {
+      type: "Record",
+    });
+    t.nonNull.string("options");
   },
 });
 
@@ -42,21 +53,8 @@ export const RecordQuery = extendType({
     t.list.field("dailyRecords", {
       type: "Record",
       async resolve() {
-        const startOfSelectedDay = new Date().setHours(0, 0, 0, 0);
-        const startOfSelectedDayISO = new Date(
-          startOfSelectedDay
-        ).toISOString();
-
-        const projection = { _id: 0 };
-        const RecsFetched = await records
-          .find({
-            date: { $gte: startOfSelectedDayISO },
-          })
-          .project(projection)
-          .toArray();
-
-        const returningResp: NexusGenObjects["Record"][] =
-          DocsWOID(RecsFetched);
+        const recsFound = await recordsAggregations.recordsDaily();
+        const returningResp: NexusGenObjects["Record"][] = DocsWOID(recsFound);
 
         return returningResp;
       },
@@ -69,79 +67,63 @@ export const RecordQuery = extendType({
       },
       async resolve(parent, args, context) {
         const { date } = args;
-        const correctTS = new Date(date);
 
-        const monthBeggining = new Date(
-          correctTS.getFullYear(),
-          correctTS.getMonth(),
-          1
-        );
-        const monthEnding = new Date(
-          correctTS.getFullYear(),
-          correctTS.getMonth() + 1
-        );
-
-        console.log(monthBeggining.toISOString());
-        console.log(monthEnding.toISOString());
-        const RecsFetched = await records
-          .aggregate([
-            {
-              $match: {
-                $and: [
-                  { date: { $gte: monthBeggining.toISOString() } },
-                  { date: { $lt: monthEnding.toISOString() } },
-                ],
-              },
-            },
-            {
-              $group: {
-                _id: "$login",
-                brk_hrs: { $sum: "$brk_hrs" },
-                wrk_hrs: { $sum: "$wrk_hrs" },
-              },
-            },
-            { $sort: { _id: 1 } },
-            { $project: { login: "$_id", wrk_hrs: 1, brk_hrs: 1 } },
-          ])
-          .toArray();
-
-        console.log(RecsFetched);
-
-        const returningResp: NexusGenObjects["Record"][] =
-          DocsWOID(RecsFetched);
+        const recsFound = await recordsAggregations.recordsMonthly(date);
+        const returningResp: NexusGenObjects["Record"][] = DocsWOID(recsFound);
 
         return returningResp;
       },
     });
 
-    // t.list.field("loadRecordForSet", {
-    //   type: "String",
-    //   args: {
-    //     login: nonNull(stringArg()),
-    //   },
-    //   async resolve(parent, args, context) {
-    //     const { login } = args;
-    //     const startOfSelectedDay = new Date();
-    //     startOfSelectedDay.setHours(0, 0, 0);
+    t.field("loadRecordForSet", {
+      type: "RecordWOpt",
+      args: {
+        login: nonNull(stringArg()),
+      },
+      async resolve(parent, args, context) {
+        const { login } = args;
+        const recFound = await recordsAggregations.loadRecordForSet(login);
+        let returnValue: { recordData: NexusGenObjects["Record"] } & {
+          options: string;
+        } = {
+          recordData: {
+            brk_hrs: 0,
+            cfbreak: 0,
+            date: "",
+            end: "",
+            login: "",
+            start: "",
+            status: false,
+            wrk_hrs: 0,
+          },
+          options: "start",
+        };
 
-    //     const recFound = await records.findOne({
-    //       $and: [{ login: login }, { date: { $gte: startOfSelectedDay } }],
-    //     });
-    //     let returnValue = "start";
-    //     if (recFound !== null) {
-    //       switch (true) {
-    //         case recFound.status === true && recFound.cfbreak === null:
-    //           returnValue = "start break or go home";
-    //           break;
-    //         case recFound.status === true && recFound.cfbreak !== null:
-    //           returnValue = "finish break or go home";
-    //           break;
-    //       }
-    //     }
+        const rewriteRecordData = async () => {
+          returnValue.recordData = {
+            ...returnValue.recordData,
+            ...recFound,
+          };
+        };
 
-    //     return returnValue;
-    //   },
-    // });
+        (await profilesAggregations.authentification(login))
+          ? await rewriteRecordData()
+          : (returnValue.options = "login");
+
+        if (recFound !== null) {
+          switch (true) {
+            case recFound.status === true && recFound.cfbreak === null:
+              returnValue.options = "start break or go home";
+              break;
+            case recFound.status === true && recFound.cfbreak !== null:
+              returnValue.options = "finish break or go home";
+              break;
+          }
+        }
+
+        return returnValue;
+      },
+    });
   },
 });
 
@@ -163,158 +145,25 @@ export const RecordMutation = extendType({
 
         switch (process) {
           case "startDay":
-            let recCheck = await records.findOne({
-              $and: [{ login: login }, { date: { $gte: startOfSelectedDay } }],
-            });
-
-            console.log(recCheck);
-            if (recCheck !== null) {
-              pipelineArg = { $set: { status: true, start: new Date() } };
-            } else {
-              const newRecord: NexusGenObjects["Record"] = {
-                login,
-                status: true,
-                start: new Date().toISOString(),
-                cfbreak: null,
-                wrk_hrs: 0,
-                brk_hrs: 0,
-                end: null,
-                date: new Date().toISOString(),
-              };
-
-              const res = await records.insertOne(newRecord);
-              console.log(res);
-            }
-
-            break;
+            pipelineArg =
+              await recordsAggregations.recordSet.recordStart(login);
           case "goHome":
-            await records
-              .aggregate([
-                {
-                  $match: {
-                    $and: [
-                      { login: login },
-                      { date: { $gte: startOfSelectedDay } },
-                    ],
-                  },
-                },
-                {
-                  $set: {
-                    brk_hrs: {
-                      $cond: {
-                        if: { $eq: ["$cfbreak", null] },
-                        then: "$brk_hrs",
-                        else: {
-                          $round: [
-                            {
-                              $add: [
-                                "$brk_hrs",
-                                {
-                                  $divide: [
-                                    { $subtract: [new Date(), "$cfbreak"] },
-                                    3600000,
-                                  ],
-                                },
-                              ],
-                            },
-                            1,
-                          ],
-                        },
-                      },
-                    },
-                    wrk_hrs: {
-                      $round: [
-                        {
-                          $add: [
-                            "$wrk_hrs",
-                            {
-                              $divide: [
-                                { $subtract: [new Date(), "$start"] },
-                                3600000,
-                              ],
-                            },
-                          ],
-                        },
-                        1,
-                      ],
-                    },
-                    status: false,
-                    end: new Date(),
-                  },
-                },
-                {
-                  $merge: {
-                    into: "records",
-                    on: "_id",
-                    whenMatched: "replace",
-                    whenNotMatched: "fail",
-                  },
-                },
-              ])
-              .toArray();
+            await recordsAggregations.recordSet.recordGoHome(login);
             break;
-          case "startPause":
+          case "startBreak":
             pipelineArg = {
               $set: {
                 cfbreak: new Date(),
               },
             };
             break;
-          case "finishPause":
-            await records
-              .aggregate([
-                {
-                  $match: {
-                    $and: [
-                      { login: login },
-                      { date: { $gte: startOfSelectedDay } },
-                    ],
-                  },
-                },
-                {
-                  $project: {
-                    _id: 1,
-                    login: 1,
-                    status: 1,
-                    start: 1,
-                    cfbreak: null,
-                    wrk_hrs: 1,
-                    end: 1,
-                    date: 1,
-                    brk_hrs: {
-                      $round: [
-                        {
-                          $add: [
-                            "$brk_hrs",
-                            {
-                              $divide: [
-                                { $subtract: [new Date(), "$cfbreak"] },
-                                3600000,
-                              ],
-                            },
-                          ],
-                        },
-                        1,
-                      ],
-                    },
-                  },
-                },
-                {
-                  $merge: {
-                    into: "records",
-                    on: "_id",
-                    whenMatched: "replace",
-                    whenNotMatched: "fail",
-                  },
-                },
-              ])
-              .toArray();
-
+          case "finishBreak":
+            await recordsAggregations.recordSet.recordFinishBreak(login);
             break;
           default:
         }
 
-        if (process !== "goHome" && process !== "finishPause") {
+        if (pipelineArg) {
           await records.updateOne(
             { login: login, date: { $gte: startOfSelectedDay } },
             pipelineArg

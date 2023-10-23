@@ -1,11 +1,20 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
+export type Profile = {
+  email: string;
+  login: string;
+  name: string;
+  phone: string;
+  position: string;
+};
+
 type InitialState = {
   loading: boolean;
   response: boolean;
   error: string;
 };
+
 const initialState: InitialState = {
   loading: false,
   response: false,
@@ -13,52 +22,52 @@ const initialState: InitialState = {
 };
 
 // Generates pending, fulfilled and rejected action types
-export const fetchRecords = createAsyncThunk("record/daily", async () => {
-  const response = await axios.post(
-    `http://localhost:8000/graphql`,
-    {
-      query: `
-        query DailyRecords {
-            dailyRecords {
-              login
-              date
-              start
-              end
-              status
-              brk_hrs
-              wrk_hrs
-              cfbreak
-            }
-          }
+export const authorize = createAsyncThunk(
+  "profile/login",
+  async (login: string) => {
+    const response = await axios.post(
+      `http://localhost:8000/graphql`,
+      {
+        query: `
+      query Query($login: String!) {
+        login(login: $login)
+      }
           `,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
+        variables: {
+          login: login,
+        },
       },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.data.data.login) {
+      localStorage.setItem("login", login);
     }
-  );
-  console.log(process.env.API);
-  return response.data.data.login;
-});
+
+    return response.data.data;
+  }
+);
 
 const profileLoginSlice = createSlice({
   name: "profileLogin",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchRecords.pending, (state) => {
+    builder.addCase(authorize.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(
-      fetchRecords.fulfilled,
+      authorize.fulfilled,
       (state, action: PayloadAction<boolean>) => {
         state.loading = false;
         state.response = action.payload;
         state.error = "";
       }
     );
-    builder.addCase(fetchRecords.rejected, (state, action) => {
+    builder.addCase(authorize.rejected, (state, action) => {
       state.loading = false;
       state.response = false;
       state.error = action.error.message || "Something went wrong";

@@ -26,19 +26,21 @@ function UserDetails() {
     setSelectedUser(e.target.value);
   };
   return (
-    <div className="user-details">
-      <h2>User Details</h2>
+    <div className="main-content">
+      <div className="user-details">
+        <h2>User Details</h2>
 
-      {user && (
-        <div className="user-info">
-          <h3>{user.login}</h3>
-          <p>Started At: {user.startedAt}</p>
-          <p>Hours on Break: {user.hoursOnBreak}</p>
-          <p>Hours Worked: {user.hoursWorked}</p>
-          <p>Now at Work: {user.nowAtWork}</p>
-          <p>Finished At: {user.finishedAt}</p>
-        </div>
-      )}
+        {user && (
+          <div className="user-info">
+            <h3>{user.login}</h3>
+            <p>Started At: {user.startedAt}</p>
+            <p>Hours on Break: {user.hoursOnBreak}</p>
+            <p>Hours Worked: {user.hoursWorked}</p>
+            <p>Now at Work: {user.nowAtWork}</p>
+            <p>Finished At: {user.finishedAt}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
