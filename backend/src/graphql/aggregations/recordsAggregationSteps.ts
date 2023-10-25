@@ -1,9 +1,21 @@
 import { NexusGenObjects } from "../../../nexus-typegen";
 import { records } from "../../database";
 
-const dayBeginningISO = () => {
-  const startOfSelectedDay = new Date().setHours(0, 0, 0, 0);
-  return new Date(startOfSelectedDay).toISOString();
+type recordDB = {
+  login: string;
+  status: boolean;
+  start: Date;
+  cfbreak: Date | null;
+  wrk_hrs: 0;
+  brk_hrs: 0;
+  end: Date | null;
+  date: Date;
+};
+
+export const dayBeginningISO = () => {
+  const startOfSelectedDay = new Date();
+  startOfSelectedDay.setHours(0, 0, 0, 0);
+  return startOfSelectedDay;
 };
 
 const monthBoundariesISO = (selectedDate: string) => {
@@ -12,8 +24,8 @@ const monthBoundariesISO = (selectedDate: string) => {
   const monthStart = new Date(correctTS.getFullYear(), correctTS.getMonth(), 1);
   const monthEnd = new Date(correctTS.getFullYear(), correctTS.getMonth() + 1);
   return {
-    monthStart: monthStart.toISOString(),
-    monthEnd: monthEnd.toISOString(),
+    monthStart: monthStart,
+    monthEnd: monthEnd,
   };
 };
 
@@ -68,15 +80,15 @@ const start = async (login: string) => {
   if (recCheck !== null) {
     pipelineArg = { $set: { status: true, start: new Date() } };
   } else {
-    const newRecord: NexusGenObjects["Record"] = {
+    const newRecord: recordDB = {
       login,
       status: true,
-      start: new Date().toISOString(),
+      start: new Date(),
       cfbreak: null,
       wrk_hrs: 0,
       brk_hrs: 0,
       end: null,
-      date: new Date().toISOString(),
+      date: new Date(),
     };
 
     const res = await records.insertOne(newRecord);
@@ -89,11 +101,19 @@ const goHome = async (login: string) => {
     .aggregate([
       {
         $match: {
-          $and: [{ login: login }, { date: { $gte: dayBeginningISO() } }],
+          $and: [
+            { login: login },
+            { date: { $gte: new Date(dayBeginningISO()) } },
+          ],
         },
       },
       {
-        $set: {
+        $project: {
+          _id: 1,
+          login: 1,
+          start: 1,
+          cfbreak: null,
+          date: 1,
           brk_hrs: {
             $cond: {
               if: { $eq: ["$cfbreak", null] },
@@ -129,9 +149,11 @@ const goHome = async (login: string) => {
               1,
             ],
           },
-          status: false,
           end: new Date(),
         },
+      },
+      {
+        $addFields: { status: false },
       },
       {
         $merge: {

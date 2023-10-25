@@ -4,22 +4,19 @@ import { useAppSelector } from "../app/hooks";
 function SetButton({ submit }: any) {
   const currentStatus = useAppSelector((state) => state.recordStatus);
 
-  const fetchingProps = {
-    login: currentStatus.status.recordData.login,
-    process: currentStatus.status.options,
-  };
+  const handleSet = async (process: string) => {
+    const login = localStorage.getItem("login");
+    console.log("Sending request with process:", process);
 
-  const handleSet = async () => {
-    console.log("wfwefe");
     await axios.post(
       `http://localhost:8000/graphql`,
       {
         query: `
-            mutation SetRecord($login: String!, $process: String!) {
-                setRecord(login: $login, process: $process)
-              }
-              `,
-        variables: fetchingProps,
+          mutation SetRecord($login: String!, $process: String!) {
+            setRecord(login: $login, process: $process)
+          }
+        `,
+        variables: { login, process },
       },
       {
         headers: {
@@ -31,7 +28,27 @@ function SetButton({ submit }: any) {
     submit();
   };
 
-  return <button onClick={handleSet}>{currentStatus.status.options}</button>;
+  return (
+    <div>
+      {currentStatus.status.options === "start" && (
+        <button onClick={() => handleSet("start")}>Start</button>
+      )}
+
+      {currentStatus.status.options === "start break or go home" && (
+        <div>
+          <button onClick={() => handleSet("startBreak")}>Start Break</button>
+          <button onClick={() => handleSet("goHome")}>Go Home</button>
+        </div>
+      )}
+
+      {currentStatus.status.options === "finish break or go home" && (
+        <div>
+          <button onClick={() => handleSet("finishBreak")}>Finish Break</button>
+          <button onClick={() => handleSet("goHome")}>Go Home</button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default SetButton;

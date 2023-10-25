@@ -2,7 +2,9 @@ import { extendType, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 import { profiles, records } from "../database";
 import { WithId } from "mongodb";
-import recordsAggregations from "./aggregations/recordsAggregationSteps";
+import recordsAggregations, {
+  dayBeginningISO,
+} from "./aggregations/recordsAggregationSteps";
 import profilesAggregations from "./aggregations/profilesAggregationSteps";
 
 export const Record = objectType({
@@ -140,11 +142,9 @@ export const RecordMutation = extendType({
       async resolve(parent, args, context) {
         const { process, login } = args;
         let pipelineArg = {};
-        const startOfSelectedDay = new Date();
-        startOfSelectedDay.setHours(0, 0, 0);
 
         switch (process) {
-          case "startDay":
+          case "start":
             pipelineArg =
               await recordsAggregations.recordSet.recordStart(login);
           case "goHome":
@@ -165,7 +165,7 @@ export const RecordMutation = extendType({
 
         if (pipelineArg) {
           await records.updateOne(
-            { login: login, date: { $gte: startOfSelectedDay } },
+            { login: login, date: { $gte: dayBeginningISO() } },
             pipelineArg
           );
         }
