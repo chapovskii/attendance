@@ -37,10 +37,12 @@ const DocsWOID: (fetchedDocs: any[]) => NexusGenObjects["Record"][] = (
     return {
       date: doc.date || "",
       login: doc.login || "",
-      start: doc.start || "",
+      start: doc.start
+        ? `${doc.start.getHours()}:${doc.start.getMinutes()}`
+        : "",
       brk_hrs: doc.brk_hrs || null,
       wrk_hrs: doc.wrk_hrs || null,
-      end: doc.end || "",
+      end: doc.end ? `${doc.end.getHours()}:${doc.end.getMinutes()}` : "",
       status: doc.status || false,
       cfbreak: doc.cfbreak || null,
     };
@@ -85,6 +87,11 @@ export const RecordQuery = extendType({
       async resolve(parent, args, context) {
         const { login } = args;
         const recFound = await recordsAggregations.loadRecordForSet(login);
+        if (recFound) {
+          recFound.start = recFound.start
+            ? `${recFound.start.getHours()}:${recFound.start.getMinutes()}`
+            : "";
+        }
         let returnValue: { recordData: NexusGenObjects["Record"] } & {
           options: string;
         } = {
@@ -122,6 +129,7 @@ export const RecordQuery = extendType({
               break;
           }
         }
+        console.log(returnValue);
 
         return returnValue;
       },
@@ -147,27 +155,46 @@ export const RecordMutation = extendType({
           case "start":
             pipelineArg =
               await recordsAggregations.recordSet.recordStart(login);
+            break;
           case "goHome":
-            await recordsAggregations.recordSet.recordGoHome(login);
+            pipelineArg = recordsAggregations.recordSet.recordGoHome();
             break;
           case "startBreak":
-            pipelineArg = {
-              $set: {
-                cfbreak: new Date(),
-              },
-            };
+            pipelineArg = recordsAggregations.recordSet.recordStartBreak();
             break;
           case "finishBreak":
-            await recordsAggregations.recordSet.recordFinishBreak(login);
+            pipelineArg = recordsAggregations.recordSet.recordFinishBreak();
             break;
           default:
         }
 
         if (pipelineArg) {
-          await records.updateOne(
-            { login: login, date: { $gte: dayBeginningISO() } },
-            pipelineArg
-          );
+          // await records.updateOne(
+          //   { login: login, date: { $gte: dayBeginningISO() } },
+          //   pipelineArg
+          // );
+
+          await records
+            .aggregate([
+              {
+                $match: {
+                  $and: [
+                    { login: login },
+                    { date: { $gte: new Date(dayBeginningISO()) } },
+                  ],
+                },
+              },
+              pipelineArg,
+              {
+                $merge: {
+                  into: "records",
+                  on: "_id",
+                  whenMatched: "replace",
+                  whenNotMatched: "fail",
+                },
+              },
+            ])
+            .toArray();
         }
 
         return true;

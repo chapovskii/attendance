@@ -17,10 +17,6 @@ body {
   padding: 20px;
   font-size: 18px;
 }
-h1 {
-  font-size: 2em;
-  margin-top: 5px;
-}
 
 .main-content {
   flex-grow: 1;
@@ -59,11 +55,6 @@ h1 {
 
 .rainbow-text {
   background: linear-gradient(to right, white, #2c3e50, white, #2c3e50, white);
-  /* #2c3e50,
-  white,
-  #2c3e50,
-  white,
-  #2c3e50 */
   -webkit-background-clip: text;
   color: transparent;
   animation: rainbow-animation 2s linear infinite;

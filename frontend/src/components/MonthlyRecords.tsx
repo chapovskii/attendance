@@ -20,8 +20,8 @@ const months = [
 ];
 
 const years = Array.from(
-  { length: 11 },
-  (_, index) => new Date().getFullYear() - 5 + index
+  { length: 5 },
+  (_, index) => new Date().getFullYear() - 4 + index
 );
 
 function MonthlyRecords() {
@@ -64,6 +64,8 @@ function MonthlyRecords() {
   } else {
     return (
       <div className="main-content">
+        <h1>Monthly Records</h1>
+
         <div className="month-year-picker">
           show data from month:
           <div className="select-container">
@@ -99,7 +101,6 @@ function MonthlyRecords() {
         {!fetchedRecs.loading && fetchedRecs.records.length ? (
           <>
             <table className="styled-table">
-              {/* "record-table"> */}
               <tbody>
                 <tr>
                   <th key={"_id"}>{"login"}</th>

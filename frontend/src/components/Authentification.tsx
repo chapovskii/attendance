@@ -18,7 +18,22 @@ function Authentication({ loginCheck }: any) {
     return (
       <div className="main-content">
         <h2>Authentication</h2>
-        <label>Login:</label>
+        {/* <label>Login:</label>
+        <form onSubmit={handleLogin}>
+          <div>
+            <label>Enter your login:</label>
+            <input
+              type="text"
+              name="login"
+              value={login}
+              onChange={(e) => setLogin(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <button type="submit">Login</button>
+          </div>
+        </form> */}
         <input
           type="text"
           value={login}

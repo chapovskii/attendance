@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { fetchRecords } from "../features/record/daily";
-import UserDetails from "./UserDetails";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { Navigate } from "react-router-dom";
 import { fetchStatus } from "../features/record/status";
@@ -16,6 +15,7 @@ function DailyRecords() {
   useEffect(() => {
     dispatch(fetchRecords());
     dispatch(fetchStatus(login));
+    console.log(fetchedRecs);
   }, []);
 
   if (currentStatus.status.options === "login") {
@@ -31,7 +31,7 @@ function DailyRecords() {
         ) : null}
         {!fetchedRecs.loading && fetchedRecs.records.length ? (
           <>
-            <table className="record-table">
+            <table className="styled-table">
               <tbody>
                 <tr>
                   <th>Login</th>
@@ -47,13 +47,21 @@ function DailyRecords() {
                     <td>{record.start}</td>
                     <td>{record.cfbreak}</td>
                     <td>{record.wrk_hrs}</td>
-                    <td>{record.status ? "Yes" : "No"}</td>
+                    <td>
+                      {
+                        <div
+                          className={`table-circle ${
+                            record.status ? "green-circle" : "red-circle"
+                          }
+                            `}
+                        ></div>
+                      }
+                    </td>
                     <td>{record.end}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <UserDetails />
           </>
         ) : null}
       </div>

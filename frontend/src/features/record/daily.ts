@@ -46,7 +46,6 @@ export const fetchRecords = createAsyncThunk("record/daily", async () => {
       },
     }
   );
-  console.log("ssssssssssssssssssssssssssssssssssssssssss");
   return response.data.data.dailyRecords;
 });
 

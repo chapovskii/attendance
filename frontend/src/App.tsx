@@ -31,7 +31,6 @@ function App() {
   const handleSetRecord = () => {
     dispatch(fetchStatus(login));
   };
-  const setOptions: string = barData.status.options.toString();
 
   return (
     <div className="container">
@@ -49,7 +48,6 @@ function App() {
           <Route path="/registration" element={<RegistrationForm />} />
         </Routes>
       </Router>
-
       {barData.status.options && barData.status.options !== "login" ? (
         <div className="bottom-bar">
           <div className="bottom-bar-data">
