@@ -149,7 +149,7 @@ export const RecordMutation = extendType({
 
       async resolve(parent, args, context) {
         const { process, login } = args;
-        let pipelineArg = {};
+        let pipelineArg = [{}];
 
         switch (process) {
           case "start":
@@ -169,11 +169,6 @@ export const RecordMutation = extendType({
         }
 
         if (pipelineArg) {
-          // await records.updateOne(
-          //   { login: login, date: { $gte: dayBeginningISO() } },
-          //   pipelineArg
-          // );
-
           await records
             .aggregate([
               {
@@ -184,7 +179,7 @@ export const RecordMutation = extendType({
                   ],
                 },
               },
-              pipelineArg,
+              ...pipelineArg,
               {
                 $merge: {
                   into: "records",

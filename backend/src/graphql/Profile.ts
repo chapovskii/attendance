@@ -1,4 +1,4 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";
+import { booleanArg, extendType, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 import { profiles } from "../database";
 import profilesAggregations from "./aggregations/profilesAggregationSteps";
@@ -11,8 +11,26 @@ export const Profile = objectType({
     t.nonNull.string("position");
     t.nonNull.string("email");
     t.nonNull.string("phone");
+    t.nonNull.boolean("adminRole");
   },
 });
+
+const DocsWOID: (fetchedDocs: any[]) => NexusGenObjects["Profile"][] = (
+  fetchedDocs
+) => {
+  const result = fetchedDocs.map((doc) => {
+    return {
+      login: doc.login || "",
+      name: doc.name || "",
+      position: doc.position || "",
+      email: doc.email || "",
+      phone: doc.phone || "",
+      adminRole: doc.adminRole || false,
+    };
+  });
+
+  return result;
+};
 
 export const ProfileQuery = extendType({
   type: "Query",
@@ -30,6 +48,20 @@ export const ProfileQuery = extendType({
         return response;
       },
     });
+
+    t.list.field("userList", {
+      type: "Profile",
+      args: {
+        login: nonNull(stringArg()),
+      },
+      async resolve(parent, args, context, info) {
+        const accountsFound = await profilesAggregations.userList(args.login);
+        const returningResp: NexusGenObjects["Profile"][] =
+          DocsWOID(accountsFound);
+
+        return returningResp;
+      },
+    });
   },
 });
 
@@ -44,10 +76,28 @@ export const ProfileMutation = extendType({
         position: nonNull(stringArg()),
         email: nonNull(stringArg()),
         phone: nonNull(stringArg()),
+        adminRole: nonNull(booleanArg()),
       },
 
       async resolve(parent, args) {
-        const newProfile = await profilesAggregations.refistration(args);
+        const newProfile = await profilesAggregations.registration(args);
+        return newProfile;
+      },
+    });
+
+    t.nonNull.field("updateProfile", {
+      type: "Boolean",
+      args: {
+        login: nonNull(stringArg()),
+        name: nonNull(stringArg()),
+        position: nonNull(stringArg()),
+        email: nonNull(stringArg()),
+        phone: nonNull(stringArg()),
+        adminRole: nonNull(booleanArg()),
+      },
+
+      async resolve(parent, args) {
+        const newProfile = await profilesAggregations.update(args);
         return newProfile;
       },
     });

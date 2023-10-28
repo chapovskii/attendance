@@ -25,8 +25,8 @@ function Navigation() {
 
         <ul className="navigation-list">
           <li className="navigation-item">
-            <Link to="/registration" className="navigation-link">
-              Register
+            <Link to="/administration" className="navigation-link">
+              Manage profiles
             </Link>
           </li>
         </ul>

@@ -71,37 +71,39 @@ const loadForSet = async (login: string) => {
 };
 
 const start = async (login: string) => {
-  let pipelineArg = {};
+  let pipelineArg = [{}];
   let recCheck = await records.findOne({
     $and: [{ login: login }, { date: { $gte: dayBeginningISO() } }],
   });
 
   if (recCheck !== null) {
-    pipelineArg = {
-      $project: {
-        _id: 1,
-        login: 1,
-        status: true,
-        start: 1,
-        cfbreak: null,
-        wrk_hrs: 1,
-        end: 1,
-        date: 1,
-        brk_hrs: {
-          $round: [
-            {
-              $add: [
-                "$brk_hrs",
-                {
-                  $divide: [{ $subtract: [new Date(), "$end"] }, 3600000],
-                },
-              ],
-            },
-            1,
-          ],
+    pipelineArg = [
+      {
+        $project: {
+          _id: 1,
+          login: 1,
+          start: 1,
+          cfbreak: null,
+          wrk_hrs: 1,
+          end: 1,
+          date: 1,
+          brk_hrs: {
+            $round: [
+              {
+                $add: [
+                  "$brk_hrs",
+                  {
+                    $divide: [{ $subtract: [new Date(), "$end"] }, 3600000],
+                  },
+                ],
+              },
+              1,
+            ],
+          },
         },
       },
-    };
+      { $set: { status: true } },
+    ];
   } else {
     const newRecord: recordDB = {
       login,
@@ -116,88 +118,98 @@ const start = async (login: string) => {
 
     const res = await records.insertOne(newRecord);
   }
-  return pipelineArg ? pipelineArg : {};
+  return pipelineArg ? pipelineArg : [{}];
 };
 
 const goHome = () => {
-  return {
-    $project: {
-      _id: 1,
-      login: 1,
-      start: 1,
-      cfbreak: null,
-      date: 1,
-      brk_hrs: {
-        $cond: {
-          if: { $eq: ["$cfbreak", null] },
-          then: "$brk_hrs",
-          else: {
-            $round: [
-              {
-                $add: [
-                  "$brk_hrs",
-                  {
-                    $divide: [{ $subtract: [new Date(), "$cfbreak"] }, 3600000],
-                  },
-                ],
-              },
-              1,
-            ],
+  return [
+    {
+      $project: {
+        _id: 1,
+        login: 1,
+        start: 1,
+        cfbreak: null,
+        date: 1,
+        brk_hrs: {
+          $cond: {
+            if: { $eq: ["$cfbreak", null] },
+            then: "$brk_hrs",
+            else: {
+              $round: [
+                {
+                  $add: [
+                    "$brk_hrs",
+                    {
+                      $divide: [
+                        { $subtract: [new Date(), "$cfbreak"] },
+                        3600000,
+                      ],
+                    },
+                  ],
+                },
+                1,
+              ],
+            },
           },
         },
+        wrk_hrs: {
+          $round: [
+            {
+              $add: [
+                "$wrk_hrs",
+                {
+                  $divide: [{ $subtract: [new Date(), "$start"] }, 3600000],
+                },
+              ],
+            },
+            1,
+          ],
+        },
+        end: new Date(),
       },
-      wrk_hrs: {
-        $round: [
-          {
-            $add: [
-              "$wrk_hrs",
-              {
-                $divide: [{ $subtract: [new Date(), "$start"] }, 3600000],
-              },
-            ],
-          },
-          1,
-        ],
-      },
-      end: new Date(),
     },
-  };
+    { $set: { status: false } },
+  ];
 };
 
 const startBreak = () => {
-  return {
-    $set: {
-      cfbreak: new Date(),
+  return [
+    {
+      $set: {
+        cfbreak: new Date(),
+      },
     },
-  };
+  ];
 };
 
 const finishBreak = () => {
-  return {
-    $project: {
-      _id: 1,
-      login: 1,
-      status: 1,
-      start: 1,
-      cfbreak: null,
-      wrk_hrs: 1,
-      end: 1,
-      date: 1,
-      brk_hrs: {
-        $round: [
-          {
-            $add: [
-              "$brk_hrs",
-              {
-                $divide: [{ $subtract: [new Date(), "$cfbreak"] }, 3600000],
-              },
-            ],
-          },
-          1,
-        ],
+  return [
+    {
+      $project: {
+        _id: 1,
+        login: 1,
+        status: 1,
+        start: 1,
+        cfbreak: null,
+        wrk_hrs: 1,
+        end: 1,
+        date: 1,
+        brk_hrs: {
+          $round: [
+            {
+              $add: [
+                "$brk_hrs",
+                {
+                  $divide: [{ $subtract: [new Date(), "$cfbreak"] }, 3600000],
+                },
+              ],
+            },
+            1,
+          ],
+        },
       },
     },
-  };
+  ];
 };
 
 const recordsAggregations = {

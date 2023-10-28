@@ -5,13 +5,14 @@ import { fetchStatus } from "../features/record/status";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { Navigate } from "react-router-dom";
 
-function RegistrationForm() {
+function ModalContent({ onClose }: any) {
   const [userData, setUserData] = useState<Profile>({
     email: "",
     login: "",
     name: "",
     phone: "",
     position: "",
+    adminRole: false,
   });
 
   const currentStatus = useAppSelector((state) => state.recordStatus);
@@ -32,16 +33,10 @@ function RegistrationForm() {
       `http://localhost:8000/graphql`,
       {
         query: `
-        mutation CreateProfile($login: String!, $name: String!, $position: String!, $email: String!, $phone: String!) {
-          createProfile(login: $login, name: $name, position: $position, email: $email, phone: $phone) {
-            login
-            name
-            position
-            email
-            phone
-          }
-        }
-            `,
+            mutation CreateProfile($login: String!, $name: String!, $position: String!, $email: String!, $phone: String!, $adminRole: Boolean!) {
+              createProfile(login: $login, name: $name, position: $position, email: $email, phone: $phone, adminRole: $adminRole)
+            }
+                `,
         variables: data,
       },
       {
@@ -51,7 +46,7 @@ function RegistrationForm() {
       }
     );
     response.data.data
-      ? successModal(response.data.data.createProfile.login)
+      ? successModal(response.data.data.createProfile)
       : issueModal(
           response.data.errors[0]
             ? response.data.errors[0].message
@@ -64,16 +59,21 @@ function RegistrationForm() {
     setUserData((prevUserData) => ({ ...prevUserData, [name]: value }));
   };
 
+  const handleAdminRoleChange = () => {
+    setUserData((prevUserData) => ({
+      ...prevUserData,
+      adminRole: !userData.adminRole,
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendRequest(userData);
   };
 
-  if (currentStatus.status.options === "login") {
-    return <Navigate replace to="/login" />;
-  } else {
-    return (
-      <div className="main-content">
+  return (
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="form-container">
         <form onSubmit={handleSubmit}>
           <div>
             <label>Email:</label>
@@ -128,12 +128,22 @@ function RegistrationForm() {
             />
           </div>
           <div>
+            <label>Admin role:</label>
+            <input
+              type="checkbox"
+              name="adminRole"
+              checked={userData.adminRole}
+              onChange={handleAdminRoleChange}
+            />
+          </div>
+          <div>
             <button type="submit">Register</button>
           </div>
         </form>
       </div>
-    );
-  }
+      <button onClick={onClose}>Close</button>
+    </div>
+  );
 }
 
-export default RegistrationForm;
+export default ModalContent;

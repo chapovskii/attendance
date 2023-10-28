@@ -23,16 +23,16 @@ const initialState: InitialState = {
 };
 
 // Generates pending, fulfilled and rejected action types
-export const authorize = createAsyncThunk(
-  "profile/login",
+export const updateUser = createAsyncThunk(
+  "profile/update",
   async (login: string) => {
     const response = await axios.post(
       `http://localhost:8000/graphql`,
       {
         query: `
-        mutation UpdateProfile($login: String!, $name: String!, $position: String!, $email: String!, $phone: String!, $adminRole: Boolean!) {
-          updateProfile(login: $login, name: $name, position: $position, email: $email, phone: $phone, adminRole: $adminRole)
-        }
+      query Query($login: String!) {
+        login(login: $login)
+      }
           `,
         variables: {
           login: login,
@@ -44,31 +44,31 @@ export const authorize = createAsyncThunk(
         },
       }
     );
-    // if (response.data.data) {
-    //   localStorage.setItem("login", login);
-    // }
+    if (response.data.data.login) {
+      localStorage.setItem("login", login);
+    }
 
     return response.data.data;
   }
 );
 
 const profileLoginSlice = createSlice({
-  name: "profileUpdate",
+  name: "profileLogin",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(authorize.pending, (state) => {
+    builder.addCase(updateUser.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(
-      authorize.fulfilled,
+      updateUser.fulfilled,
       (state, action: PayloadAction<boolean>) => {
         state.loading = false;
         state.response = action.payload;
         state.error = "";
       }
     );
-    builder.addCase(authorize.rejected, (state, action) => {
+    builder.addCase(updateUser.rejected, (state, action) => {
       state.loading = false;
       state.response = false;
       state.error = action.error.message || "Something went wrong";

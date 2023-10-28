@@ -30,6 +30,7 @@ export interface NexusGenScalars {
 export interface NexusGenObjects {
   Mutation: {};
   Profile: { // root type
+    adminRole: boolean; // Boolean!
     email: string; // String!
     login: string; // String!
     name: string; // String!
@@ -67,8 +68,10 @@ export interface NexusGenFieldTypes {
   Mutation: { // field return type
     createProfile: boolean; // Boolean!
     setRecord: boolean; // Boolean!
+    updateProfile: boolean; // Boolean!
   }
   Profile: { // field return type
+    adminRole: boolean; // Boolean!
     email: string; // String!
     login: string; // String!
     name: string; // String!
@@ -80,6 +83,7 @@ export interface NexusGenFieldTypes {
     loadRecordForSet: NexusGenRootTypes['RecordWOpt'] | null; // RecordWOpt
     login: boolean; // Boolean!
     monthlyRecords: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
+    userList: Array<NexusGenRootTypes['Profile'] | null> | null; // [Profile]
   }
   Record: { // field return type
     brk_hrs: number | null; // Int
@@ -101,8 +105,10 @@ export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
     createProfile: 'Boolean'
     setRecord: 'Boolean'
+    updateProfile: 'Boolean'
   }
   Profile: { // field return type name
+    adminRole: 'Boolean'
     email: 'String'
     login: 'String'
     name: 'String'
@@ -114,6 +120,7 @@ export interface NexusGenFieldTypeNames {
     loadRecordForSet: 'RecordWOpt'
     login: 'Boolean'
     monthlyRecords: 'Record'
+    userList: 'Profile'
   }
   Record: { // field return type name
     brk_hrs: 'Int'
@@ -134,6 +141,7 @@ export interface NexusGenFieldTypeNames {
 export interface NexusGenArgTypes {
   Mutation: {
     createProfile: { // args
+      adminRole: boolean; // Boolean!
       email: string; // String!
       login: string; // String!
       name: string; // String!
@@ -143,6 +151,14 @@ export interface NexusGenArgTypes {
     setRecord: { // args
       login: string; // String!
       process: string; // String!
+    }
+    updateProfile: { // args
+      adminRole: boolean; // Boolean!
+      email: string; // String!
+      login: string; // String!
+      name: string; // String!
+      phone: string; // String!
+      position: string; // String!
     }
   }
   Query: {
@@ -154,6 +170,9 @@ export interface NexusGenArgTypes {
     }
     monthlyRecords: { // args
       date: string; // String!
+    }
+    userList: { // args
+      login: string; // String!
     }
   }
 }

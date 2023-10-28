@@ -12,27 +12,34 @@ export type Profile = {
 
 type InitialState = {
   loading: boolean;
-  response: boolean;
+  response: Profile[];
   error: string;
 };
 
 const initialState: InitialState = {
   loading: false,
-  response: false,
+  response: [],
   error: "",
 };
 
 // Generates pending, fulfilled and rejected action types
-export const authorize = createAsyncThunk(
-  "profile/login",
+export const userList = createAsyncThunk(
+  "profile/list",
   async (login: string) => {
     const response = await axios.post(
       `http://localhost:8000/graphql`,
       {
         query: `
-        mutation UpdateProfile($login: String!, $name: String!, $position: String!, $email: String!, $phone: String!, $adminRole: Boolean!) {
-          updateProfile(login: $login, name: $name, position: $position, email: $email, phone: $phone, adminRole: $adminRole)
-        }
+        query UserList($login: String!) {
+            userList(login: $login) {
+              login
+              name
+              position
+              email
+              phone
+              adminRole
+            }
+          }
           `,
         variables: {
           login: login,
@@ -44,33 +51,31 @@ export const authorize = createAsyncThunk(
         },
       }
     );
-    // if (response.data.data) {
-    //   localStorage.setItem("login", login);
-    // }
+    console.log(response.data.data);
 
-    return response.data.data;
+    return response.data.data.userList;
   }
 );
 
 const profileLoginSlice = createSlice({
-  name: "profileUpdate",
+  name: "profileList",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(authorize.pending, (state) => {
+    builder.addCase(userList.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(
-      authorize.fulfilled,
-      (state, action: PayloadAction<boolean>) => {
+      userList.fulfilled,
+      (state, action: PayloadAction<Profile[]>) => {
         state.loading = false;
         state.response = action.payload;
         state.error = "";
       }
     );
-    builder.addCase(authorize.rejected, (state, action) => {
+    builder.addCase(userList.rejected, (state, action) => {
       state.loading = false;
-      state.response = false;
+      state.response = [];
       state.error = action.error.message || "Something went wrong";
     });
   },

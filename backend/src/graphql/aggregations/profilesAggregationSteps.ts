@@ -10,9 +10,34 @@ const reg = async (args: NexusGenObjects["Profile"]) => {
   return res.acknowledged;
 };
 
+const update = async (args: NexusGenObjects["Profile"]) => {
+  const newProfileData = {
+    email: args.email,
+    name: args.name,
+    phone: args.phone,
+    position: args.position,
+    adminRole: args.adminRole,
+  };
+
+  const res = await profiles.updateOne(
+    { login: args.login },
+    { $set: newProfileData }
+  );
+  // todo
+  return true;
+};
+
+const userList = async (login: string) => {
+  // todo: check with login and permition
+  const res = await profiles.find().toArray();
+  return res;
+};
+
 const profilesAggregations = {
   authentification: auth,
-  refistration: reg,
+  registration: reg,
+  update: update,
+  userList: userList,
 };
 
 export default profilesAggregations;

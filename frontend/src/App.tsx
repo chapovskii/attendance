@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import "./App.css";
 import MonthlyRecords from "./components/MonthlyRecords";
-import RegistrationForm from "./components/Register";
 import Authentification from "./components/Authentification";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { useEffect, useState } from "react";
 import { fetchStatus } from "./features/record/status";
 import SetButton from "./components/SetButton";
+import ProfilesAdmin from "./components/ProfilesAdmin";
 
 function App() {
   const barData = useAppSelector((state) => state.recordStatus);
@@ -45,7 +45,7 @@ function App() {
           }
           <Route path="/monthly-records" element={<MonthlyRecords />} />
           <Route path="/daily-records" element={<DailyRecords />} />
-          <Route path="/registration" element={<RegistrationForm />} />
+          <Route path="/administration" element={<ProfilesAdmin />} />
         </Routes>
       </Router>
       {barData.status.options && barData.status.options !== "login" ? (
@@ -61,7 +61,6 @@ function App() {
           </div>
           <div className="bottom-bar-buttons">
             <SetButton submit={handleSetRecord}>Set Record</SetButton>
-            <button>Send a report</button>
             <button onClick={handleLogOut}>Log Out </button>
           </div>
         </div>
