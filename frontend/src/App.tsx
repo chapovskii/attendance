@@ -10,6 +10,13 @@ import { fetchStatus } from "./features/record/status";
 import SetButton from "./components/SetButton";
 import ProfilesAdmin from "./components/ProfilesAdmin";
 
+export const formatTime = (timestamp: number) => {
+  const hours = Math.floor(timestamp / 3600000);
+  const minutes = Math.floor((timestamp % 3600000) / 60000);
+
+  return `${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+};
+
 function App() {
   const barData = useAppSelector((state) => state.recordStatus);
   const storageLogin = localStorage.getItem("login");
@@ -52,11 +59,16 @@ function App() {
         <div className="bottom-bar">
           <div className="bottom-bar-data">
             <p className="bottom-bar-row">Login: {login}</p>
+
+            {!barData.status.recordData.status ? (
+              <p className="bottom-bar-row">
+                Started at: {barData.status.recordData.start}
+              </p>
+            ) : null}
+
             <p className="bottom-bar-row">
-              Started at: {barData.status.recordData.start}
-            </p>
-            <p className="bottom-bar-row">
-              Hours Worked Today: {barData.status.recordData.start}
+              Hours Worked Today:{" "}
+              {formatTime(barData.status.recordData.wrk_hrs)}
             </p>
           </div>
           <div className="bottom-bar-buttons">

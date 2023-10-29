@@ -3,6 +3,7 @@ import { fetchRecords } from "../features/record/daily";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { Navigate } from "react-router-dom";
 import { fetchStatus } from "../features/record/status";
+import { formatTime } from "../App";
 
 function DailyRecords() {
   const fetchedRecs = useAppSelector((state) => state.dailyRecords);
@@ -45,8 +46,8 @@ function DailyRecords() {
                   <tr key={index}>
                     <td>{record.login}</td>
                     <td>{record.start}</td>
-                    <td>{record.cfbreak}</td>
-                    <td>{record.wrk_hrs}</td>
+                    <td>{formatTime(record.brk_hrs)}</td>
+                    <td>{formatTime(record.wrk_hrs)}</td>
                     <td>
                       {
                         <div

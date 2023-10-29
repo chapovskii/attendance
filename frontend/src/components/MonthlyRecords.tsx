@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { fetchRecordsMonthly } from "../features/record/monthly";
 import { fetchStatus } from "../features/record/status";
 import { Navigate } from "react-router-dom";
+import { formatTime } from "../App";
 
 const months = [
   "January",
@@ -110,8 +111,8 @@ function MonthlyRecords() {
                 {fetchedRecs.records.map((record, index) => (
                   <tr key={index}>
                     <td>{record.login}</td>
-                    <td>{record.brk_hrs}</td>
-                    <td>{record.wrk_hrs}</td>
+                    <td>{formatTime(record.brk_hrs)}</td>
+                    <td>{formatTime(record.wrk_hrs)}</td>
                   </tr>
                 ))}
               </tbody>

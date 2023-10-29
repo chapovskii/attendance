@@ -90,12 +90,7 @@ const start = async (login: string) => {
           brk_hrs: {
             $round: [
               {
-                $add: [
-                  "$brk_hrs",
-                  {
-                    $divide: [{ $subtract: [new Date(), "$end"] }, 3600000],
-                  },
-                ],
+                $add: ["$brk_hrs", { $subtract: [new Date(), "$end"] }],
               },
               1,
             ],
@@ -137,15 +132,7 @@ const goHome = () => {
             else: {
               $round: [
                 {
-                  $add: [
-                    "$brk_hrs",
-                    {
-                      $divide: [
-                        { $subtract: [new Date(), "$cfbreak"] },
-                        3600000,
-                      ],
-                    },
-                  ],
+                  $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
                 },
                 1,
               ],
@@ -155,12 +142,7 @@ const goHome = () => {
         wrk_hrs: {
           $round: [
             {
-              $add: [
-                "$wrk_hrs",
-                {
-                  $divide: [{ $subtract: [new Date(), "$start"] }, 3600000],
-                },
-              ],
+              $add: ["$wrk_hrs", { $subtract: [new Date(), "$start"] }],
             },
             1,
           ],
@@ -197,12 +179,7 @@ const finishBreak = () => {
         brk_hrs: {
           $round: [
             {
-              $add: [
-                "$brk_hrs",
-                {
-                  $divide: [{ $subtract: [new Date(), "$cfbreak"] }, 3600000],
-                },
-              ],
+              $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
             },
             1,
           ],
