@@ -1,4 +1,4 @@
-import { extendType, nonNull, objectType, stringArg } from "nexus";
+import { booleanArg, extendType, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 import { profiles, records } from "../database";
 import { WithId } from "mongodb";
@@ -20,6 +20,19 @@ export const Record = objectType({
     t.int("cfbreak");
   },
 });
+
+export const RecordsIssues = objectType({
+  name: "RecordsIssues",
+  definition(t) {
+    t.list.field("fix_required", {
+      type: "Record",
+    });
+    t.list.field("suspicious", {
+      type: "Record",
+    });
+  },
+});
+
 export const RecordWOpt = objectType({
   name: "RecordWOpt",
   definition(t) {
@@ -30,6 +43,14 @@ export const RecordWOpt = objectType({
   },
 });
 
+const formatTime = (timestamp: Date) => {
+  const date = new Date(timestamp);
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${hours}:${minutes}`;
+};
+
 const DocsWOID: (fetchedDocs: any[]) => NexusGenObjects["Record"][] = (
   fetchedDocs
 ) => {
@@ -37,12 +58,10 @@ const DocsWOID: (fetchedDocs: any[]) => NexusGenObjects["Record"][] = (
     return {
       date: doc.date || "",
       login: doc.login || "",
-      start: doc.start
-        ? `${doc.start.getHours()}:${doc.start.getMinutes()}`
-        : "",
+      start: doc.start ? formatTime(doc.start) : "",
       brk_hrs: doc.brk_hrs || null,
       wrk_hrs: doc.wrk_hrs || null,
-      end: doc.end ? `${doc.end.getHours()}:${doc.end.getMinutes()}` : "",
+      end: doc.end ? formatTime(doc.end) : "",
       status: doc.status || false,
       cfbreak: doc.cfbreak || null,
     };
@@ -58,9 +77,23 @@ export const RecordQuery = extendType({
       type: "Record",
       async resolve() {
         const recsFound = await recordsAggregations.recordsDaily();
+        console.log(recsFound);
         const returningResp: NexusGenObjects["Record"][] = DocsWOID(recsFound);
 
         return returningResp;
+      },
+    });
+
+    t.field("recordsIssues", {
+      type: "RecordsIssues",
+      async resolve() {
+        const recsFound = await recordsAggregations.recordsIssues();
+
+        const transformedData: NexusGenObjects["RecordsIssues"] = {
+          fix_required: DocsWOID(recsFound[0].fix_required || []),
+          suspicious: DocsWOID(recsFound[0].suspicious || []),
+        };
+        return transformedData;
       },
     });
 
@@ -88,9 +121,7 @@ export const RecordQuery = extendType({
         const { login } = args;
         const recFound = await recordsAggregations.loadRecordForSet(login);
         if (recFound) {
-          recFound.start = recFound.start
-            ? `${recFound.start.getHours()}:${recFound.start.getMinutes()}`
-            : "";
+          recFound.start = recFound.start ? formatTime(recFound.start) : "";
         }
         let returnValue: { recordData: NexusGenObjects["Record"] } & {
           options: string;

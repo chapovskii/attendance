@@ -60,7 +60,7 @@ function MonthlyRecords() {
     fetchData();
   }, [dispatch, login, selectedMonth, selectedYear]);
 
-  if (currentStatus.status.options === "login") {
+  if (!currentStatus.loading && currentStatus.status.options === "login") {
     return <Navigate replace to="/login" />;
   } else {
     return (

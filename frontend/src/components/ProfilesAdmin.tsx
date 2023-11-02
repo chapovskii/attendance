@@ -24,6 +24,7 @@ const ProfilesAdmin = () => {
 
   useEffect(() => {
     dispatch(userList(login));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [selectedUser, setSelectedUser] = useState({

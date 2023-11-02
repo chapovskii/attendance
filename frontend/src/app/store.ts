@@ -6,17 +6,19 @@ import recordSetReducer from "../features/record/set";
 import statusSetReducer from "../features/record/status";
 import updateUser from "../features/profile/update";
 import userList from "../features/profile/profiles";
+import issues from "../features/record/issues";
 
 export const store = configureStore({
   reducer: {
     authProfile: profileAuthReducer,
     updateUser: updateUser,
+    userList: userList,
 
     dailyRecords: recordDailyReducer,
     monthlyRecords: recordMonthlyReducer,
     setRecord: recordSetReducer,
     recordStatus: statusSetReducer,
-    userList: userList,
+    foundIssues: issues,
   },
 });
 

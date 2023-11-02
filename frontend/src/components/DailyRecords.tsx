@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { fetchRecords } from "../features/record/daily";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { Navigate } from "react-router-dom";
@@ -16,7 +16,7 @@ function DailyRecords() {
   useEffect(() => {
     dispatch(fetchRecords());
     dispatch(fetchStatus(login));
-    console.log(fetchedRecs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (currentStatus.status.options === "login") {

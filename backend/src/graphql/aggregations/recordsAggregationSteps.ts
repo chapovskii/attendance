@@ -88,12 +88,7 @@ const start = async (login: string) => {
           end: 1,
           date: 1,
           brk_hrs: {
-            $round: [
-              {
-                $add: ["$brk_hrs", { $subtract: [new Date(), "$end"] }],
-              },
-              1,
-            ],
+            $add: ["$brk_hrs", { $subtract: [new Date(), "$end"] }],
           },
         },
       },
@@ -130,21 +125,22 @@ const goHome = () => {
             if: { $eq: ["$cfbreak", null] },
             then: "$brk_hrs",
             else: {
-              $round: [
-                {
-                  $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
-                },
-                1,
-              ],
+              $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
             },
           },
         },
         wrk_hrs: {
-          $round: [
+          $subtract: [
+            { $subtract: [new Date(), "$start"] },
             {
-              $add: ["$wrk_hrs", { $subtract: [new Date(), "$start"] }],
+              $cond: {
+                if: { $eq: ["$cfbreak", null] },
+                then: "$brk_hrs",
+                else: {
+                  $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
+                },
+              },
             },
-            1,
           ],
         },
         end: new Date(),
@@ -177,22 +173,56 @@ const finishBreak = () => {
         end: 1,
         date: 1,
         brk_hrs: {
-          $round: [
-            {
-              $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
-            },
-            1,
-          ],
+          $add: ["$brk_hrs", { $subtract: [new Date(), "$cfbreak"] }],
         },
       },
     },
   ];
 };
 
+const issues = async () => {
+  const recsFetched = await records
+    .aggregate([
+      {
+        $facet: {
+          fix_required: [
+            {
+              $match: {
+                $and: [{ date: { $lt: dayBeginningISO() } }, { status: true }],
+              },
+            },
+          ],
+          suspicious: [
+            {
+              $match: {
+                $and: [
+                  { date: { $lt: dayBeginningISO() } },
+                  { wrk_hrs: { $gte: 10 * 60 * 60 * 1000 } },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ])
+    .toArray();
+
+  const transformedData: {
+    fix_required: NexusGenObjects["Record"][];
+    suspicious: NexusGenObjects["Record"][];
+  } = {
+    fix_required: recsFetched[0].fix_required || [],
+    suspicious: recsFetched[0].suspicious || [],
+  };
+
+  return recsFetched;
+};
+
 const recordsAggregations = {
   recordsDaily: daily,
   recordsMonthly: monthly,
   loadRecordForSet: loadForSet,
+  recordsIssues: issues,
 
   recordSet: {
     recordStart: start,

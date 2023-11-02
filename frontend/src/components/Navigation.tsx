@@ -29,6 +29,11 @@ function Navigation() {
               Manage profiles
             </Link>
           </li>
+          <li className="navigation-item">
+            <Link to="/issues" className="navigation-link">
+              Found Issues
+            </Link>
+          </li>
         </ul>
         <div className="github-link">
           <a

@@ -52,6 +52,10 @@ export interface NexusGenObjects {
     options: string; // String!
     recordData: NexusGenRootTypes['Record']; // Record!
   }
+  RecordsIssues: { // root type
+    fix_required?: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
+    suspicious?: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
+  }
 }
 
 export interface NexusGenInterfaces {
@@ -83,6 +87,7 @@ export interface NexusGenFieldTypes {
     loadRecordForSet: NexusGenRootTypes['RecordWOpt'] | null; // RecordWOpt
     login: boolean; // Boolean!
     monthlyRecords: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
+    recordsIssues: NexusGenRootTypes['RecordsIssues'] | null; // RecordsIssues
     userList: Array<NexusGenRootTypes['Profile'] | null> | null; // [Profile]
   }
   Record: { // field return type
@@ -98,6 +103,10 @@ export interface NexusGenFieldTypes {
   RecordWOpt: { // field return type
     options: string; // String!
     recordData: NexusGenRootTypes['Record']; // Record!
+  }
+  RecordsIssues: { // field return type
+    fix_required: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
+    suspicious: Array<NexusGenRootTypes['Record'] | null> | null; // [Record]
   }
 }
 
@@ -120,6 +129,7 @@ export interface NexusGenFieldTypeNames {
     loadRecordForSet: 'RecordWOpt'
     login: 'Boolean'
     monthlyRecords: 'Record'
+    recordsIssues: 'RecordsIssues'
     userList: 'Profile'
   }
   Record: { // field return type name
@@ -135,6 +145,10 @@ export interface NexusGenFieldTypeNames {
   RecordWOpt: { // field return type name
     options: 'String'
     recordData: 'Record'
+  }
+  RecordsIssues: { // field return type name
+    fix_required: 'Record'
+    suspicious: 'Record'
   }
 }
 

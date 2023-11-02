@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { fetchStatus } from "./features/record/status";
 import SetButton from "./components/SetButton";
 import ProfilesAdmin from "./components/ProfilesAdmin";
+import IssuesPanel from "./components/IssuesPanel";
 
 export const formatTime = (timestamp: number) => {
   const hours = Math.floor(timestamp / 3600000);
@@ -25,7 +26,7 @@ function App() {
 
   useEffect(() => {
     dispatch(fetchStatus(login));
-  }, [login]);
+  }, [dispatch, login]);
 
   const handleLoginChange = (newLogin: string) => {
     setLogin(newLogin);
@@ -53,6 +54,7 @@ function App() {
           <Route path="/monthly-records" element={<MonthlyRecords />} />
           <Route path="/daily-records" element={<DailyRecords />} />
           <Route path="/administration" element={<ProfilesAdmin />} />
+          <Route path="/issues" element={<IssuesPanel />} />
         </Routes>
       </Router>
       {barData.status.options && barData.status.options !== "login" ? (
@@ -60,16 +62,16 @@ function App() {
           <div className="bottom-bar-data">
             <p className="bottom-bar-row">Login: {login}</p>
 
+            <p className="bottom-bar-row">
+              Started at: {barData.status.recordData.start}
+            </p>
+
             {!barData.status.recordData.status ? (
               <p className="bottom-bar-row">
-                Started at: {barData.status.recordData.start}
+                Hours Worked Today:{" "}
+                {formatTime(barData.status.recordData.wrk_hrs)}
               </p>
             ) : null}
-
-            <p className="bottom-bar-row">
-              Hours Worked Today:{" "}
-              {formatTime(barData.status.recordData.wrk_hrs)}
-            </p>
           </div>
           <div className="bottom-bar-buttons">
             <SetButton submit={handleSetRecord}>Set Record</SetButton>

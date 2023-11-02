@@ -22,6 +22,7 @@ type Query {
   loadRecordForSet(login: String!): RecordWOpt
   login(login: String!): Boolean!
   monthlyRecords(date: String!): [Record]
+  recordsIssues: RecordsIssues
   userList(login: String!): [Profile]
 }
 
@@ -39,4 +40,9 @@ type Record {
 type RecordWOpt {
   options: String!
   recordData: Record!
+}
+
+type RecordsIssues {
+  fix_required: [Record]
+  suspicious: [Record]
 }
