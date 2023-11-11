@@ -10,6 +10,7 @@ import { fetchStatus } from "./features/record/status";
 import SetButton from "./components/SetButton";
 import ProfilesAdmin from "./components/ProfilesAdmin";
 import IssuesPanel from "./components/IssuesPanel";
+import { fetchRecords } from "./features/record/daily";
 
 export const formatTime = (timestamp: number) => {
   const hours = Math.floor(timestamp / 3600000);
@@ -38,6 +39,7 @@ function App() {
 
   const handleSetRecord = () => {
     dispatch(fetchStatus(login));
+    dispatch(fetchRecords());
   };
 
   return (

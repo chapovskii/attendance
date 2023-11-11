@@ -12,9 +12,16 @@ type recordDB = {
   date: Date;
 };
 
-export const dayBeginningISO = () => {
-  const startOfSelectedDay = new Date();
+export const dayBeginningISO = (selectedDate?: string) => {
+  let startOfSelectedDay = new Date();
+  selectedDate && (startOfSelectedDay = new Date(selectedDate));
   startOfSelectedDay.setHours(0, 0, 0, 0);
+  return startOfSelectedDay;
+};
+export const dayEndingISO = (selectedDate?: string) => {
+  let startOfSelectedDay = new Date();
+  selectedDate && (startOfSelectedDay = new Date(selectedDate));
+  startOfSelectedDay.setHours(23, 59, 59, 0);
   return startOfSelectedDay;
 };
 
@@ -31,16 +38,32 @@ const monthBoundariesISO = (selectedDate: string) => {
 
 const daily = async () => {
   const recsFetched = await records
-    .find({
-      date: { $gte: dayBeginningISO() },
-    })
+    .aggregate([
+      {
+        $match: {
+          date: { $gte: dayBeginningISO() },
+        },
+      },
+      {
+        $lookup: {
+          from: "profiles",
+          localField: "login",
+          foreignField: "login",
+          as: "profile",
+        },
+      },
+      {
+        $set: {
+          name: { $arrayElemAt: ["$profile.name", 0] },
+        },
+      },
+    ])
     .toArray();
 
   return recsFetched;
 };
 
 const monthly = async (selectedDate: string) => {
-  console.log(selectedDate);
   const { monthStart, monthEnd } = monthBoundariesISO(selectedDate);
   const recsFetched = await records
     .aggregate([
@@ -56,7 +79,22 @@ const monthly = async (selectedDate: string) => {
           wrk_hrs: { $sum: "$wrk_hrs" },
         },
       },
-      { $project: { login: "$_id", wrk_hrs: "$wrk_hrs", brk_hrs: "$brk_hrs" } },
+      {
+        $lookup: {
+          from: "profiles",
+          localField: "_id",
+          foreignField: "login",
+          as: "profile",
+        },
+      },
+      {
+        $project: {
+          login: "$_id",
+          wrk_hrs: "$wrk_hrs",
+          brk_hrs: "$brk_hrs",
+          name: { $arrayElemAt: ["$profile.name", 0] },
+        },
+      },
     ])
     .toArray();
 
@@ -191,6 +229,19 @@ const issues = async () => {
                 $and: [{ date: { $lt: dayBeginningISO() } }, { status: true }],
               },
             },
+            {
+              $lookup: {
+                from: "profiles",
+                localField: "login",
+                foreignField: "login",
+                as: "profile",
+              },
+            },
+            {
+              $set: {
+                name: { $arrayElemAt: ["$profile.name", 0] },
+              },
+            },
           ],
           suspicious: [
             {
@@ -199,6 +250,19 @@ const issues = async () => {
                   { date: { $lt: dayBeginningISO() } },
                   { wrk_hrs: { $gte: 10 * 60 * 60 * 1000 } },
                 ],
+              },
+            },
+            {
+              $lookup: {
+                from: "profiles",
+                localField: "login",
+                foreignField: "login",
+                as: "profile",
+              },
+            },
+            {
+              $set: {
+                name: { $arrayElemAt: ["$profile.name", 0] },
               },
             },
           ],
@@ -218,6 +282,42 @@ const issues = async () => {
   return recsFetched;
 };
 
+const correct = async (login: string, date: string, value: number) => {
+  const recsFetched = await records
+    .aggregate([
+      {
+        $match: {
+          $and: [
+            { login: login },
+            { date: { $gte: new Date(dayBeginningISO(date)) } },
+            { date: { $lte: new Date(dayEndingISO(date)) } },
+          ],
+        },
+      },
+      {
+        $set: {
+          wrk_hrs: value,
+          status: false,
+        },
+      },
+      {
+        $merge: {
+          into: "records",
+          on: "_id",
+          whenMatched: "replace",
+          whenNotMatched: "fail",
+        },
+      },
+    ])
+    .toArray();
+
+  return recsFetched;
+};
+
+const deleteRecords = async (login: string) => {
+  return await records.deleteMany({ login: login });
+};
+
 const recordsAggregations = {
   recordsDaily: daily,
   recordsMonthly: monthly,
@@ -230,6 +330,9 @@ const recordsAggregations = {
     recordStartBreak: startBreak,
     recordFinishBreak: finishBreak,
   },
+
+  recordCorrect: correct,
+  deleteRecords,
 };
 
 export default recordsAggregations;

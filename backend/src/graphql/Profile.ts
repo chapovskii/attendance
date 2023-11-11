@@ -2,6 +2,7 @@ import { booleanArg, extendType, nonNull, objectType, stringArg } from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 import { profiles } from "../database";
 import profilesAggregations from "./aggregations/profilesAggregationSteps";
+import recordsAggregations from "./aggregations/recordsAggregationSteps";
 
 export const Profile = objectType({
   name: "Profile",
@@ -51,11 +52,9 @@ export const ProfileQuery = extendType({
 
     t.list.field("userList", {
       type: "Profile",
-      args: {
-        login: nonNull(stringArg()),
-      },
+      args: {},
       async resolve(parent, args, context, info) {
-        const accountsFound = await profilesAggregations.userList(args.login);
+        const accountsFound = await profilesAggregations.userList();
         const returningResp: NexusGenObjects["Profile"][] =
           DocsWOID(accountsFound);
 
@@ -80,8 +79,14 @@ export const ProfileMutation = extendType({
       },
 
       async resolve(parent, args) {
-        const newProfile = await profilesAggregations.registration(args);
-        return newProfile;
+        const found = await profilesAggregations.authentification(args.login);
+
+        if (!found) {
+          await profilesAggregations.registration(args);
+          return true;
+        }
+
+        return false;
       },
     });
 
@@ -97,8 +102,24 @@ export const ProfileMutation = extendType({
       },
 
       async resolve(parent, args) {
-        const newProfile = await profilesAggregations.update(args);
-        return newProfile;
+        const res = await profilesAggregations.update(args);
+        const updated = res.modifiedCount ? true : false;
+        return updated;
+      },
+    });
+
+    t.nonNull.field("deleteProfile", {
+      type: "Boolean",
+      args: {
+        login: nonNull(stringArg()),
+      },
+
+      async resolve(parent, args) {
+        const res = await profilesAggregations.deleteProfile(args.login);
+        if (res.deletedCount !== 0) {
+          await recordsAggregations.deleteRecords(args.login);
+        }
+        return res.deletedCount === 1;
       },
     });
   },

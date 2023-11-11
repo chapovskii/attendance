@@ -2,9 +2,11 @@ import axios from "axios";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Record } from "./daily";
 
+export type extendedRecord = Record & { date: Date };
+
 type issues = {
-  fix_required: Record[];
-  suspicious: Record[];
+  fix_required: extendedRecord[];
+  suspicious: extendedRecord[];
 };
 
 type InitialState = {
@@ -37,6 +39,7 @@ export const fetchIssues = createAsyncThunk("record/issues", async () => {
               brk_hrs
               wrk_hrs
               cfbreak
+              name
             }
             suspicious {
               login
@@ -47,6 +50,7 @@ export const fetchIssues = createAsyncThunk("record/issues", async () => {
               brk_hrs
               wrk_hrs
               cfbreak
+              name
             }
           }
         }
@@ -58,6 +62,7 @@ export const fetchIssues = createAsyncThunk("record/issues", async () => {
       },
     }
   );
+
   return response.data.data.recordsIssues;
 });
 

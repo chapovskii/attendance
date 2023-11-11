@@ -19,16 +19,17 @@ const update = async (args: NexusGenObjects["Profile"]) => {
     adminRole: args.adminRole,
   };
 
-  const res = await profiles.updateOne(
+  return await profiles.updateOne(
     { login: args.login },
     { $set: newProfileData }
   );
-  // todo
-  return true;
 };
 
-const userList = async (login: string) => {
-  // todo: check with login and permition
+const deleteProfile = async (login: string) => {
+  return await profiles.deleteOne({ login: login });
+};
+
+const userList = async () => {
   const res = await profiles.find().toArray();
   return res;
 };
@@ -36,8 +37,9 @@ const userList = async (login: string) => {
 const profilesAggregations = {
   authentification: auth,
   registration: reg,
-  update: update,
+  update,
   userList: userList,
+  deleteProfile,
 };
 
 export default profilesAggregations;

@@ -1,14 +1,6 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-
-export type Profile = {
-  email: string;
-  login: string;
-  name: string;
-  phone: string;
-  position: string;
-  adminRole: boolean;
-};
+import { Profile } from "./login";
 
 type InitialState = {
   loading: boolean;
@@ -23,39 +15,33 @@ const initialState: InitialState = {
 };
 
 // Generates pending, fulfilled and rejected action types
-export const userList = createAsyncThunk(
-  "profile/list",
-  async (login: string) => {
-    const response = await axios.post(
-      `http://localhost:8000/graphql`,
-      {
-        query: `
-        query UserList($login: String!) {
-            userList(login: $login) {
-              login
-              name
-              position
-              email
-              phone
-              adminRole
-            }
-          }
-          `,
-        variables: {
-          login: login,
-        },
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+export const userList = createAsyncThunk("profile/list", async () => {
+  const response = await axios.post(
+    `http://localhost:8000/graphql`,
+    {
+      query: `
+      query UserList {
+        userList {
+          login
+          name
+          position
+          email
+          phone
+          adminRole
+        }
       }
-    );
-    console.log(response.data.data);
+          `,
+      variables: {},
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-    return response.data.data.userList;
-  }
-);
+  return response.data.data.userList;
+});
 
 const profileLoginSlice = createSlice({
   name: "profileList",

@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Navigation.css";
+import { useAppSelector } from "../app/hooks";
 
 function Navigation() {
+  const statusAllowed = useAppSelector((state) => state.recordStatus);
+
   return (
     <div className="container">
       <nav className="navigation">
@@ -21,20 +24,28 @@ function Navigation() {
             </Link>
           </li>
         </ul>
-        <hr className="navigation-divider" />
 
-        <ul className="navigation-list">
-          <li className="navigation-item">
-            <Link to="/administration" className="navigation-link">
-              Manage profiles
-            </Link>
-          </li>
-          <li className="navigation-item">
-            <Link to="/issues" className="navigation-link">
-              Found Issues
-            </Link>
-          </li>
-        </ul>
+        {!statusAllowed.loading && statusAllowed.error ? (
+          <div>Error: {statusAllowed.error}</div>
+        ) : null}
+        {!statusAllowed.loading && statusAllowed.status.adminRole ? (
+          <>
+            <hr className="navigation-divider" />
+            <ul className="navigation-list">
+              <li className="navigation-item">
+                <Link to="/administration" className="navigation-link">
+                  Manage profiles
+                </Link>
+              </li>
+              <li className="navigation-item">
+                <Link to="/issues" className="navigation-link">
+                  Found Issues
+                </Link>
+              </li>
+            </ul>
+          </>
+        ) : null}
+
         <div className="github-link">
           <a
             href="https://github.com/chapovskii"

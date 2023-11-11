@@ -44,11 +44,13 @@ export interface NexusGenObjects {
     date: string; // String!
     end?: string | null; // String
     login: string; // String!
+    name?: string | null; // String
     start?: string | null; // String
     status: boolean; // Boolean!
     wrk_hrs?: number | null; // Int
   }
   RecordWOpt: { // root type
+    adminRole: boolean; // Boolean!
     options: string; // String!
     recordData: NexusGenRootTypes['Record']; // Record!
   }
@@ -70,7 +72,9 @@ export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
   Mutation: { // field return type
+    correctRecord: boolean; // Boolean!
     createProfile: boolean; // Boolean!
+    deleteProfile: boolean; // Boolean!
     setRecord: boolean; // Boolean!
     updateProfile: boolean; // Boolean!
   }
@@ -96,11 +100,13 @@ export interface NexusGenFieldTypes {
     date: string; // String!
     end: string | null; // String
     login: string; // String!
+    name: string | null; // String
     start: string | null; // String
     status: boolean; // Boolean!
     wrk_hrs: number | null; // Int
   }
   RecordWOpt: { // field return type
+    adminRole: boolean; // Boolean!
     options: string; // String!
     recordData: NexusGenRootTypes['Record']; // Record!
   }
@@ -112,7 +118,9 @@ export interface NexusGenFieldTypes {
 
 export interface NexusGenFieldTypeNames {
   Mutation: { // field return type name
+    correctRecord: 'Boolean'
     createProfile: 'Boolean'
+    deleteProfile: 'Boolean'
     setRecord: 'Boolean'
     updateProfile: 'Boolean'
   }
@@ -138,11 +146,13 @@ export interface NexusGenFieldTypeNames {
     date: 'String'
     end: 'String'
     login: 'String'
+    name: 'String'
     start: 'String'
     status: 'Boolean'
     wrk_hrs: 'Int'
   }
   RecordWOpt: { // field return type name
+    adminRole: 'Boolean'
     options: 'String'
     recordData: 'Record'
   }
@@ -154,6 +164,11 @@ export interface NexusGenFieldTypeNames {
 
 export interface NexusGenArgTypes {
   Mutation: {
+    correctRecord: { // args
+      date: string; // String!
+      login: string; // String!
+      value: number; // Int!
+    }
     createProfile: { // args
       adminRole: boolean; // Boolean!
       email: string; // String!
@@ -161,6 +176,9 @@ export interface NexusGenArgTypes {
       name: string; // String!
       phone: string; // String!
       position: string; // String!
+    }
+    deleteProfile: { // args
+      login: string; // String!
     }
     setRecord: { // args
       login: string; // String!
@@ -184,9 +202,6 @@ export interface NexusGenArgTypes {
     }
     monthlyRecords: { // args
       date: string; // String!
-    }
-    userList: { // args
-      login: string; // String!
     }
   }
 }

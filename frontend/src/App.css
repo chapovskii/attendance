@@ -1,30 +1,13 @@
 .main-content {
   padding: 20px;
   flex-grow: 1;
-  font-size: 1.3em;
+  font-size: 2.9vh;
   text-align: center;
-}
-
-.select-container {
-  display: inline-block;
-  position: relative;
 }
 
 .container-flex {
   display: flex;
   /* justify-content: space-between; */
-}
-
-.select-container select {
-  appearance: none;
-  background-color: #f0f0f0;
-  border: 1px solid #3498db;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 150px;
-  color: #333;
 }
 
 .download-button {
@@ -33,7 +16,7 @@
   border: none;
   border-radius: 5px;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 2vh;
   cursor: pointer;
   margin-top: 20px;
 }
@@ -52,28 +35,27 @@
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 5vh;
   margin-top: 5px;
 }
 
 h2 {
   color: #ecf0f1;
-  font-size: 20px;
+  font-size: 2.7vh;
   margin-bottom: 10px;
 }
 
-.custom-select {
+.custom-filter {
   appearance: none;
   background-color: #f0f0f0;
   border: 1px solid #3498db;
   border-radius: 5px;
   padding: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 100%;
+  font-size: 2.5vh;
+  width: 10%;
   color: #333;
   margin-bottom: 10px;
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 .user-info {
@@ -82,31 +64,42 @@ h2 {
   padding-top: 10px;
 }
 
-.month-year-picker {
+.table-filter {
   display: flex;
-  align-items: center;
-  margin-bottom: 20px;
+  font-size: 2.5vh;
+  margin: auto;
+  padding: 0%;
+  display: inline-block;
 }
 
-.month-year-picker select {
-  margin-right: 20px;
+.table-filter select {
+  appearance: none;
+  background-color: #f0f0f0;
+  border: 1px solid #3498db;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 2.5vh;
+  cursor: pointer;
+  /* width: 100%; */
+  color: #333;
+  margin-bottom: 10px;
+  margin-left: 5px;
 }
 
-.month-year-picker label {
+.table-filter label {
   margin-right: 10px;
   color: #333;
-  font-size: 16px;
+  font-size: 2.5vh;
 }
 
 h3 {
-  color: #ecf0f1;
-  font-size: 18px;
+  font-size: 2.5vh;
   margin-bottom: 10px;
 }
 
 p {
   color: #555;
-  font-size: 16px;
+  font-size: 2.5vh;
   margin: 5px 0;
 }
 
@@ -125,25 +118,55 @@ p {
 .styled-table th,
 .styled-table td {
   padding: 12px 15px;
-  font-size: 1.3em;
+  font-size: 2.5vh;
 }
 
 .styled-table {
   border-collapse: collapse;
-  font-size: 0.9em;
+  font-size: 2.5vh;
   font-family: sans-serif;
-  min-width: 400px;
+  min-width: 600px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  margin: auto;
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
 }
 
 .styled-table thead tr {
   background-color: #009879;
   color: #ffffff;
-  text-align: left;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.styled-table-container {
+  max-height: 50%;
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+  margin: auto;
+  width: min-content;
 }
 
 .styled-table tbody tr:hover {
   background-color: #dcdcdc;
+}
+
+.styled-table-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.styled-table-container::-webkit-scrollbar-thumb {
+  background-color: #3498db;
+  border-radius: 6px;
+}
+
+.styled-table-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 10px;
 }
 
 button {
@@ -152,7 +175,7 @@ button {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  font-size: 0.9em;
+  font-size: 2vh;
   cursor: pointer;
   margin: 10px;
 }
@@ -164,8 +187,10 @@ button:hover {
 .bottom-bar {
   position: fixed;
   bottom: 0;
-  left: 40%;
+  margin-left: 45%;
+  /* margin-right: 30%; */
 
+  /* transform: translateX(-100%); */
   background-color: #2c3e50;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -173,8 +198,9 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-  font-size: 1em;
+  font-size: 2.5vh;
   color: #ecf0f1;
+  width: auto;
 }
 
 .bottom-bar-data {
@@ -189,8 +215,8 @@ button:hover {
 }
 
 .bottom-bar-data p {
-  font-size: 1.2em;
-  margin: 5px 0;
+  font-size: 2.7vh;
+  /* margin: 5px 0; */
 }
 
 .bottom-bar-buttons {
@@ -210,12 +236,49 @@ button:hover {
 .table-circle {
   width: 20px;
   height: 20px;
-  background-color: rgb(191, 58, 75);
   border-radius: 50%;
-  position: relative;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  margin: auto;
+}
+
+.form-input {
+  display: flex;
+  flex-direction: column-reverse;
+  position: relative;
+  padding-top: 1.5rem;
+  & + .input {
+    margin-top: 1.5rem;
+  }
+}
+
+.input-label {
+  color: #8597a3;
+  position: absolute;
+  top: 1.5rem;
+  font-size: 2.5vh;
+
+  transition: 0.25s ease;
+}
+
+.input-field {
+  border: 0;
+  z-index: 1;
+  background-color: transparent;
+  border-bottom: 2px solid #eee;
+  font: inherit;
+  font-size: 2.5vh;
+  padding: 0.25rem 0;
+  &:focus,
+  &:valid {
+    outline: 0;
+    border-bottom-color: #3498db;
+    & + .input-label {
+      color: #3498db;
+      transform: translateY(-1.5rem);
+    }
+  }
 }
 
 .form-container {
@@ -225,51 +288,8 @@ button:hover {
   margin: 0 auto;
   padding: 20px;
   border-radius: 8px;
-  background-color: #2c3e50;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.form-container label {
-  display: block;
-  margin-bottom: 8px;
-  color: #ecf0f1;
-}
-
-.form-container input {
-  width: 80%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #3498db;
-  border-radius: 5px;
-  background-color: #34495e;
-  color: #ecf0f1;
-  font-size: 0.9em;
-}
-
-.form-container button {
-  background-color: #3498db;
-  color: #ecf0f1;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.9em;
-  cursor: pointer;
-  margin: 10px;
-}
-
-.form-container button:hover {
-  background-color: #2980b9;
-}
-
-.form-container .custom-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #3498db;
-  border-radius: 5px;
-  background-color: #34495e;
-  color: #ecf0f1;
-  font-size: 0.9em;
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
+  overflow-y: auto;
 }
 
 .modal-background {
@@ -298,4 +318,12 @@ button:hover {
   height: 200px;
   background-color: #3498db;
   margin: 10px 0;
+}
+
+.warn-button {
+  background-color: #c95050;
+}
+
+.warn-button:hover {
+  background-color: rgb(148, 25, 25);
 }

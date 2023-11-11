@@ -6,7 +6,6 @@ function SetButton({ submit }: any) {
 
   const handleSet = async (process: string) => {
     const login = localStorage.getItem("login");
-    console.log("Sending request with process:", process);
 
     await axios.post(
       `http://localhost:8000/graphql`,

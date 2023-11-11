@@ -4,7 +4,7 @@ import { Record } from "./daily";
 
 type InitialState = {
   loading: boolean;
-  status: { recordData: Record; options: String };
+  status: { recordData: Record; options: String; adminRole: boolean };
   error: string;
 };
 
@@ -19,8 +19,10 @@ const initialState: InitialState = {
       brk_hrs: 0,
       wrk_hrs: 0,
       cfbreak: 0,
+      name: "",
     },
     options: "login",
+    adminRole: false,
   },
   error: "",
 };
@@ -46,6 +48,7 @@ export const fetchStatus = createAsyncThunk(
                 cfbreak
               }
               options
+              adminRole
             }
           }
           `,
@@ -82,7 +85,11 @@ const recordSlice = createSlice({
       fetchStatus.fulfilled,
       (
         state,
-        action: PayloadAction<{ recordData: Record; options: String }>
+        action: PayloadAction<{
+          recordData: Record;
+          options: String;
+          adminRole: boolean;
+        }>
       ) => {
         state.loading = false;
         state.status = action.payload;
@@ -100,8 +107,10 @@ const recordSlice = createSlice({
           brk_hrs: 0,
           wrk_hrs: 0,
           cfbreak: 0,
+          name: "",
         },
         options: "login",
+        adminRole: false,
       };
       state.error = action.error.message || "Something went wrong";
     });

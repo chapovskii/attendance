@@ -25,6 +25,7 @@ export const fetchRecordsMonthly = createAsyncThunk(
       query MonthlyRecords($date: String!) {
         monthlyRecords(date: $date) {
           login
+          name
           date
           start
           end

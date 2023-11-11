@@ -1,4 +1,11 @@
-import { booleanArg, extendType, nonNull, objectType, stringArg } from "nexus";
+import {
+  booleanArg,
+  extendType,
+  intArg,
+  nonNull,
+  objectType,
+  stringArg,
+} from "nexus";
 import { NexusGenObjects } from "../../nexus-typegen";
 import { profiles, records } from "../database";
 import { WithId } from "mongodb";
@@ -18,6 +25,7 @@ export const Record = objectType({
     t.int("brk_hrs");
     t.int("wrk_hrs");
     t.int("cfbreak");
+    t.string("name");
   },
 });
 
@@ -40,6 +48,7 @@ export const RecordWOpt = objectType({
       type: "Record",
     });
     t.nonNull.string("options");
+    t.nonNull.boolean("adminRole");
   },
 });
 
@@ -56,7 +65,7 @@ const DocsWOID: (fetchedDocs: any[]) => NexusGenObjects["Record"][] = (
 ) => {
   const result = fetchedDocs.map((doc) => {
     return {
-      date: doc.date || "",
+      date: doc.date ? doc.date.toISOString() : "",
       login: doc.login || "",
       start: doc.start ? formatTime(doc.start) : "",
       brk_hrs: doc.brk_hrs || null,
@@ -64,6 +73,7 @@ const DocsWOID: (fetchedDocs: any[]) => NexusGenObjects["Record"][] = (
       end: doc.end ? formatTime(doc.end) : "",
       status: doc.status || false,
       cfbreak: doc.cfbreak || null,
+      name: doc.name || "",
     };
   });
 
@@ -77,7 +87,6 @@ export const RecordQuery = extendType({
       type: "Record",
       async resolve() {
         const recsFound = await recordsAggregations.recordsDaily();
-        console.log(recsFound);
         const returningResp: NexusGenObjects["Record"][] = DocsWOID(recsFound);
 
         return returningResp;
@@ -120,35 +129,22 @@ export const RecordQuery = extendType({
       async resolve(parent, args, context) {
         const { login } = args;
         const recFound = await recordsAggregations.loadRecordForSet(login);
-        if (recFound) {
-          recFound.start = recFound.start ? formatTime(recFound.start) : "";
-        }
-        let returnValue: { recordData: NexusGenObjects["Record"] } & {
-          options: string;
-        } = {
+        const profile = await profilesAggregations.authentification(login);
+
+        const returnValue = {
           recordData: {
-            brk_hrs: 0,
-            cfbreak: 0,
-            date: "",
-            end: "",
-            login: "",
-            start: "",
-            status: false,
-            wrk_hrs: 0,
+            brk_hrs: recFound?.brk_hrs || 0,
+            cfbreak: recFound?.cfbreak || 0,
+            date: recFound?.date || "",
+            end: recFound?.end || "",
+            login: recFound?.login || "",
+            start: recFound?.start ? formatTime(recFound.start) : "",
+            status: recFound?.status || false,
+            wrk_hrs: recFound?.wrk_hrs || 0,
           },
-          options: "start",
+          options: profile ? "start" : "login",
+          adminRole: profile?.adminRole || false,
         };
-
-        const rewriteRecordData = async () => {
-          returnValue.recordData = {
-            ...returnValue.recordData,
-            ...recFound,
-          };
-        };
-
-        (await profilesAggregations.authentification(login))
-          ? await rewriteRecordData()
-          : (returnValue.options = "login");
 
         if (recFound !== null) {
           switch (true) {
@@ -160,8 +156,6 @@ export const RecordQuery = extendType({
               break;
           }
         }
-        console.log(returnValue);
-
         return returnValue;
       },
     });
@@ -223,6 +217,21 @@ export const RecordMutation = extendType({
             .toArray();
         }
 
+        return true;
+      },
+    });
+    rec.nonNull.field("correctRecord", {
+      type: "Boolean",
+      args: {
+        login: nonNull(stringArg()),
+        date: nonNull(stringArg()),
+        value: nonNull(intArg()),
+      },
+
+      async resolve(parent, args, context) {
+        const { login, date, value } = args;
+
+        await recordsAggregations.recordCorrect(login, date, value);
         return true;
       },
     });

@@ -3,7 +3,9 @@
 
 
 type Mutation {
+  correctRecord(date: String!, login: String!, value: Int!): Boolean!
   createProfile(adminRole: Boolean!, email: String!, login: String!, name: String!, phone: String!, position: String!): Boolean!
+  deleteProfile(login: String!): Boolean!
   setRecord(login: String!, process: String!): Boolean!
   updateProfile(adminRole: Boolean!, email: String!, login: String!, name: String!, phone: String!, position: String!): Boolean!
 }
@@ -23,7 +25,7 @@ type Query {
   login(login: String!): Boolean!
   monthlyRecords(date: String!): [Record]
   recordsIssues: RecordsIssues
-  userList(login: String!): [Profile]
+  userList: [Profile]
 }
 
 type Record {
@@ -32,12 +34,14 @@ type Record {
   date: String!
   end: String
   login: String!
+  name: String
   start: String
   status: Boolean!
   wrk_hrs: Int
 }
 
 type RecordWOpt {
+  adminRole: Boolean!
   options: String!
   recordData: Record!
 }

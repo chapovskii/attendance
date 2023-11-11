@@ -7,8 +7,9 @@ export type Record = {
   wrk_hrs: number;
   brk_hrs: number;
   cfbreak: number;
-  end: String;
-  start: String;
+  end: string;
+  start: string;
+  name: string;
 };
 type InitialState = {
   loading: boolean;
@@ -29,6 +30,7 @@ export const fetchRecords = createAsyncThunk("record/daily", async () => {
         query DailyRecords {
             dailyRecords {
               login
+              name
               date
               start
               end

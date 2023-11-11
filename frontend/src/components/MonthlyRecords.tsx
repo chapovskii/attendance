@@ -4,6 +4,7 @@ import { fetchRecordsMonthly } from "../features/record/monthly";
 import { fetchStatus } from "../features/record/status";
 import { Navigate } from "react-router-dom";
 import { formatTime } from "../App";
+import { TableExport } from "tableexport";
 
 const months = [
   "January",
@@ -35,7 +36,16 @@ function MonthlyRecords() {
 
   const currentStatus = useAppSelector((state) => state.recordStatus);
 
-  const handleDownloadExcel = () => {};
+  const handleDownloadExcel = () => {
+    const tableElement = document.getElementById("toExcel");
+
+    if (tableElement) {
+      new TableExport(tableElement, {
+        filename: "month_schelude",
+        sheetname: "month_schelude",
+      });
+    }
+  };
 
   const fetchedRecs = useAppSelector((state) => state.monthlyRecords);
   const dispatch = useAppDispatch();
@@ -60,68 +70,77 @@ function MonthlyRecords() {
     fetchData();
   }, [dispatch, login, selectedMonth, selectedYear]);
 
+  const [filter, setFilter] = useState<string>("");
+
+  const filteredRecords = fetchedRecs.records.filter((record) =>
+    record.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
   if (!currentStatus.loading && currentStatus.status.options === "login") {
     return <Navigate replace to="/login" />;
   } else {
     return (
       <div className="main-content">
-        <h1>Monthly Records</h1>
-
-        <div className="month-year-picker">
-          show data from month:
-          <div className="select-container">
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="custom-select"
-            >
-              {months.map((mt, idx) => (
-                <option value={idx}>{mt}</option>
-              ))}
-            </select>
-          </div>
-          <div className="select-container">
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="custom-select"
-            >
-              {years.map((year, index) => (
-                <option key={index} value={year}>
-                  {year}
-                </option>
-              ))}
-              {/* todo: get years from records aggregation */}
-            </select>
-          </div>
+        <div className="table-filter">
+          show month:
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+          >
+            {months.map((mt, idx) => (
+              <option key={mt} value={idx}>
+                {mt}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+          >
+            {years.map((year, index) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+            {/* todo: get years from records aggregation */}
+          </select>
         </div>
         {fetchedRecs.loading && <div>Loading...</div>}
         {!fetchedRecs.loading && fetchedRecs.error ? (
           <div>Error: {fetchedRecs.error}</div>
         ) : null}
-        {!fetchedRecs.loading && fetchedRecs.records.length ? (
+        {!fetchedRecs.loading && filteredRecords.length ? (
           <>
-            <table className="styled-table">
-              <tbody>
-                <tr>
-                  <th key={"_id"}>{"login"}</th>
-                  <th key={"brk_hrs"}>{"hours on break"}</th>
-                  <th key={"wrk_hrs"}>{"hours worked"}</th>
-                </tr>
-                {fetchedRecs.records.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record.login}</td>
-                    <td>{formatTime(record.brk_hrs)}</td>
-                    <td>{formatTime(record.wrk_hrs)}</td>
+            <input
+              className="custom-filter"
+              type="text"
+              placeholder="Filter by name"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+            <div className="styled-table-container">
+              <table className="styled-table" id="toExcel">
+                <tbody>
+                  <tr>
+                    <th>Name</th>
+                    <th>Hours on Break</th>
+                    <th>Hours Worked</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                  {filteredRecords.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record.name}</td>
+                      <td>{formatTime(record.brk_hrs)}</td>
+                      <td>{formatTime(record.wrk_hrs)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </>
         ) : null}
 
         <button onClick={handleDownloadExcel} className="download-button">
-          Download as Excel Document
+          Download this table
         </button>
       </div>
     );

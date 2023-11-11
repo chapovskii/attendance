@@ -1,15 +1,6 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
-export type Profile = {
-  email: string;
-  login: string;
-  name: string;
-  phone: string;
-  position: string;
-  adminRole: boolean;
-};
-
 type InitialState = {
   loading: boolean;
   response: boolean;
