@@ -3,10 +3,13 @@
   flex-grow: 1;
   font-size: 2.9vh;
   text-align: center;
+  max-height: 100%;
 }
 
 .container-flex {
   display: flex;
+  max-height: 100%;
+
   /* justify-content: space-between; */
 }
 
@@ -326,4 +329,8 @@ button:hover {
 
 .warn-button:hover {
   background-color: rgb(148, 25, 25);
+}
+
+.full-heigh {
+  max-height: 60%;
 }

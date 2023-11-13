@@ -19,7 +19,7 @@ Employee Attendance Control App is a comprehensive solution for monitoring the p
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-username/employee-attendance-control.git
+git clone https://github.com/chapovskii/attendance.git
 ```
 
 2. Install dependencies for both frontend and backend:

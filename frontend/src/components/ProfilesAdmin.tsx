@@ -101,7 +101,7 @@ const ProfilesAdmin = () => {
             <ModalContent onClose={handleCloseModal} />
           </div>
         )}
-        <div>
+        <div className="full-heigh">
           <input
             className="custom-filter"
             type="text"
