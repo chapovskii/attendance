@@ -117,7 +117,7 @@ const ProfilesAdmin = () => {
           {!users.loading && filteredRecords.length ? (
             <div className="styled-table-container">
               <table className="styled-table">
-                <tbody>
+                <thead>
                   <tr>
                     <th>Email</th>
                     <th>Login</th>
@@ -126,6 +126,8 @@ const ProfilesAdmin = () => {
                     <th>Position</th>
                     <th>Admin Role</th>
                   </tr>
+                </thead>
+                <tbody>
                   {filteredRecords.map((user: Profile) => (
                     <tr
                       key={user.login}

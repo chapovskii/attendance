@@ -44,7 +44,7 @@ function DailyRecords() {
         {!fetchedRecs.loading && filteredRecords.length ? (
           <div className="styled-table-container">
             <table className="styled-table">
-              <tbody>
+              <thead>
                 <tr>
                   <th>Name</th>
                   <th>Started At</th>
@@ -53,6 +53,9 @@ function DailyRecords() {
                   <th>Now at Work</th>
                   <th>Finished At</th>
                 </tr>
+              </thead>
+
+              <tbody>
                 {filteredRecords.map((record, index) => (
                   <tr key={index}>
                     <td>{record.name}</td>

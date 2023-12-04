@@ -128,7 +128,7 @@ p {
   border-collapse: collapse;
   font-size: 2.5vh;
   font-family: sans-serif;
-  min-width: 600px;
+  min-width: 50%;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
   margin: auto;
   overflow-y: auto;
@@ -137,16 +137,14 @@ p {
 }
 
 .styled-table thead tr {
-  background-color: #009879;
-  color: #ffffff;
+  background-color: rgba(246, 250, 252, 0.8);
   text-align: center;
   position: sticky;
   top: 0;
-  z-index: 1;
 }
 
 .styled-table-container {
-  max-height: 50%;
+  max-height: 60%;
   overflow-y: auto;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);
@@ -218,7 +216,7 @@ button:hover {
 }
 
 .bottom-bar-data p {
-  font-size: 2.7vh;
+  font-size: 2.5vh;
   /* margin: 5px 0; */
 }
 
@@ -332,5 +330,6 @@ button:hover {
 }
 
 .full-heigh {
-  max-height: 60%;
+  height: 94vh;
+  /* overflow-y: auto; */
 }

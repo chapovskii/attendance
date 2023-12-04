@@ -41,13 +41,16 @@ function Issues() {
         {/* {selectedTable === "issues" &&  ( */}
         <div className="styled-table-container">
           <table className="styled-table">
-            <tr>
-              <th>Login</th>
-              <th>Name</th>
-              <th>Date</th>
-              <th>Started at</th>
-              <th>Hours Worked</th>
-            </tr>
+            <thead>
+              <tr>
+                <th>Login</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Started at</th>
+                <th>Hours Worked</th>
+              </tr>
+            </thead>
+
             <tbody>
               {issuesFounds.issues.fix_required.map(
                 (record: extendedRecord, index) => (

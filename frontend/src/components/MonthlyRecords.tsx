@@ -120,12 +120,15 @@ function MonthlyRecords() {
             />
             <div className="styled-table-container">
               <table className="styled-table" id="toExcel">
-                <tbody>
+                <thead>
                   <tr>
                     <th>Name</th>
                     <th>Hours on Break</th>
                     <th>Hours Worked</th>
                   </tr>
+                </thead>
+
+                <tbody>
                   {filteredRecords.map((record, index) => (
                     <tr key={index}>
                       <td>{record.name}</td>
